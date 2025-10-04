@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { MotionConfig, motion } from "framer-motion";
+import { TypeAnimation } from "react-type-animation";
 import { Terminal, Folder, Code, FileText, Mail, Github, Linkedin } from "lucide-react";
 
 // --- Global Styles for Theming and Cursors ---
@@ -275,12 +276,31 @@ export default function HackerUIProfile() {
                                 {/* Header */}
                                 <div className="flex items-start justify-between mb-3">
                                     <div>
-                                        <h1 className="text-lg font-bold">
-                                            <span style={{ color: 'var(--color-accent-green)' }}>A9</span>
-                                            <span style={{ color: 'var(--color-accent-red)' }}>Pro</span> 
-                                            <span style={{ color: 'var(--color-accent-blue)' }}> Portfolio</span>
-                                        </h1>
-                                        <p className="text-[10px]" style={{ color: 'var(--color-text-secondary)' }}>An interactive, terminal-forward portfolio for coders and makers.</p>
+                                        <motion.h1
+                                            className="text-3xl md:text-5xl font-bold mb-2 text-green-300"
+                                            initial={{ opacity: 0, y: -40 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ duration: 1 }}
+                                        >
+                                            &lt;A9Pro /&gt;
+                                        </motion.h1>
+
+                                        <TypeAnimation
+                                            sequence={[
+                                                "Full-Stack Developer...",
+                                                1500,
+                                                "Crypto Trader...",
+                                                1500,
+                                                "Tech Innovator...",
+                                                1500,
+                                                "Welcome to My Digital Space 🚀",
+                                                2000,
+                                            ]}
+                                            wrapper="span"
+                                            speed={40}
+                                            className="text-sm md:text-lg text-green-400"
+                                            repeat={Infinity}
+                                        />
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <span className="text-[9px]" style={{ color: 'var(--color-text-secondary)' }}>Session: <span className="font-medium" style={{ color: 'var(--color-accent-green)' }}>Dev</span></span>
