@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, rgba(0,255,0,0.03) 0 1px, transparent 1px 5px),
+              repeating-linear-gradient(0deg, rgba(0,255,0,0.03) 0 1px, transparent 1px 5px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hacker-neon * {
+  text-shadow: 0 0 4px #0ff, 0 0 10px #0ff;
+}
