@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { MotionConfig, motion } from "framer-motion";
 import { TypeAnimation } from "react-type-animation";
 import { Terminal, Folder, Code, FileText, Mail, Github, Linkedin } from "lucide-react";
+import ContactForm from "./ContactForm";
 
 /* ----- Global styles (theming, cursor, responsive) ----- */
 const globalStyles = `
@@ -259,6 +260,7 @@ export default function HackerUIProfile() {
                 { name: "explorer", icon: Folder, text: "Explorer" },
                 { name: "projects", icon: Code, text: "Projects" },
                 { name: "editor", icon: FileText, text: "Live Editor" },
+                { name: "contact", icon: Mail, text: "Contact" },
               ].map(({ name, icon: Icon, text }) => (
                 <button
                   key={name}
@@ -317,7 +319,7 @@ export default function HackerUIProfile() {
           </aside>
 
           <main className="flex-1 flex flex-col overflow-hidden p-4 overflow-y-auto">
-            {/* Mobile hamburger - FIXED: added hamburger class */}
+            {/* Mobile hamburger */}
             <button
               className="hamburger md:hidden mb-3 p-2 rounded"
               onClick={() => setSidebarOpen((s) => !s)}
@@ -327,7 +329,7 @@ export default function HackerUIProfile() {
               ☰
             </button>
 
-            {/* overlay - FIXED: added onClick handler */}
+            {/* overlay */}
             <div 
               className={`overlay ${sidebarOpen ? "open" : ""}`} 
               onClick={() => setSidebarOpen(false)} 
@@ -490,7 +492,6 @@ export default function HackerUIProfile() {
                           <button onClick={runPreview} className="px-2 py-0.5 rounded text-[10px]" style={{ backgroundColor: "#02414a", border: "1px solid #05565d", color: "var(--color-text-main)" }}>
                             Run
                           </button>
-                          {/* FIXED: Modern Clipboard API */}
                           <button 
                             onClick={() => {
                               navigator.clipboard.writeText(editorCode)
@@ -503,6 +504,12 @@ export default function HackerUIProfile() {
                             Copy
                           </button>
                         </div>
+                      </div>
+                    )}
+
+                    {activePane === "contact" && (
+                      <div className="p-2.5 h-full overflow-auto" style={{ backgroundColor: "var(--color-bg-input)" }}>
+                        <ContactForm />
                       </div>
                     )}
                   </div>
@@ -531,7 +538,6 @@ export default function HackerUIProfile() {
                   <div className="rounded-lg p-2.5" style={{ backgroundColor: "#011b22", border: "1px solid #06313a" }}>
                     <h4 className="text-[10px] font-semibold mb-1.5" style={{ color: "var(--color-text-main)" }}>Quick Links</h4>
                     <div className="space-y-1">
-                      <a className="block text-[10px] p-1 rounded text-center" href="#" style={{ backgroundColor: "#02242d", border: "1px solid #05424a", color: "var(--color-text-main)" }}>Resume</a>
                       <a className="block text-[10px] p-1 rounded text-center" href="#" style={{ backgroundColor: "#02242d", border: "1px solid #05424a", color: "var(--color-text-main)" }}>Portfolio ZIP</a>
                     </div>
                   </div>
@@ -549,4 +555,5 @@ export default function HackerUIProfile() {
       </div>
     </MotionConfig>
   );
-}
+}: "#02242d", border: "1px solid #05424a", color: "var(--color-text-main)" }}>Resume</a>
+                      <a className="block text-[10px] p-1 rounded text-center" href="#" style={{ backgroundColor
