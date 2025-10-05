@@ -189,7 +189,7 @@ export default function ContactForm() {
       <div className="mt-6 pt-6" style={{ borderTop: "1px solid var(--color-border-sub)" }}>
         <p className="text-xs text-center" style={{ color: "var(--color-text-secondary)" }}>
           Or email me directly at{" "}
-          
+          <a
             href="mailto:adejaretalabi101@gmail.com"
             className="underline"
             style={{ color: "var(--color-accent-green)" }}
