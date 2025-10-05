@@ -144,13 +144,11 @@ export default function HackerUIProfile() {
 </html>`);
   const previewRef = useRef(null);
 
-  // load theme from localStorage
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "hacker-neon") document.documentElement.classList.add("hacker-neon");
   }, []);
 
-  // append a line to terminal and auto-scroll
   function appendTerminal(text) {
     setTerminalLines((t) => [...t, text]);
     setTimeout(() => {
@@ -224,7 +222,6 @@ export default function HackerUIProfile() {
 
       <div className="min-h-screen w-full" style={{ backgroundColor: "var(--color-bg-primary)", color: "var(--color-text-main)" }}>
         <div className="flex h-screen flex-col md:flex-row">
-          {/* Sidebar */}
           <aside
             className={`sidebar ${sidebarOpen ? "open" : ""}`}
             style={{
@@ -319,7 +316,6 @@ export default function HackerUIProfile() {
           </aside>
 
           <main className="flex-1 flex flex-col overflow-hidden p-4 overflow-y-auto">
-            {/* Mobile hamburger */}
             <button
               className="hamburger md:hidden mb-3 p-2 rounded"
               onClick={() => setSidebarOpen((s) => !s)}
@@ -329,7 +325,6 @@ export default function HackerUIProfile() {
               ☰
             </button>
 
-            {/* overlay */}
             <div 
               className={`overlay ${sidebarOpen ? "open" : ""}`} 
               onClick={() => setSidebarOpen(false)} 
@@ -337,7 +332,6 @@ export default function HackerUIProfile() {
             />
 
             <div className="rounded-lg p-3 h-full" style={{ background: "linear-gradient(180deg, #02111a 0%, #041422 100%)", border: "1px solid var(--color-border-sub)" }}>
-              {/* header */}
               <div className="flex items-start justify-between mb-3 header">
                 <div>
                   <motion.h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 text-green-300" initial={{ opacity: 0, y: -40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
@@ -372,9 +366,7 @@ export default function HackerUIProfile() {
                 </div>
               </div>
 
-              {/* content */}
               <div className="flex gap-2 h-[calc(100%-60px)] content-grid">
-                {/* left (main) */}
                 <div className="flex-1 flex flex-col gap-2">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="rounded-lg p-2.5" style={{ backgroundColor: "#031926", border: "1px solid var(--color-border-sub)" }}>
@@ -413,11 +405,10 @@ export default function HackerUIProfile() {
                     </motion.div>
                   </div>
 
-                  {/* panes */}
                   <div className="flex-1 rounded-lg overflow-hidden" style={{ border: "1px solid var(--color-border-sub)" }}>
                     {activePane === "terminal" && (
                       <div className="p-2.5 h-full flex flex-col" style={{ backgroundColor: "var(--color-bg-input)" }}>
-                        <div id="terminal-output" className="flex-1 overflow-auto font-mono text-[10px] text-[#bff3ff]" style={{ color: "var(--color-text-main)" }}>
+                        <div id="terminal-output" className="flex-1 overflow-auto font-mono text-[10px]" style={{ color: "var(--color-text-main)" }}>
                           {terminalLines.map((l, i) => (
                             <div key={i} className="py-0.5">{l}</div>
                           ))}
@@ -515,7 +506,6 @@ export default function HackerUIProfile() {
                   </div>
                 </div>
 
-                {/* right column */}
                 <div className="w-full lg:w-48 right-column flex flex-col gap-2">
                   <div className="rounded-lg p-2.5" style={{ backgroundColor: "#02151a", border: "1px solid var(--color-border-sub)" }}>
                     <h4 className="text-[10px] font-semibold" style={{ color: "var(--color-accent-red)" }}>Profile</h4>
@@ -538,6 +528,7 @@ export default function HackerUIProfile() {
                   <div className="rounded-lg p-2.5" style={{ backgroundColor: "#011b22", border: "1px solid #06313a" }}>
                     <h4 className="text-[10px] font-semibold mb-1.5" style={{ color: "var(--color-text-main)" }}>Quick Links</h4>
                     <div className="space-y-1">
+                      <a className="block text-[10px] p-1 rounded text-center" href="#" style={{ backgroundColor: "#02242d", border: "1px solid #05424a", color: "var(--color-text-main)" }}>Resume</a>
                       <a className="block text-[10px] p-1 rounded text-center" href="#" style={{ backgroundColor: "#02242d", border: "1px solid #05424a", color: "var(--color-text-main)" }}>Portfolio ZIP</a>
                     </div>
                   </div>
@@ -545,7 +536,6 @@ export default function HackerUIProfile() {
               </div>
             </div>
 
-            {/* footer */}
             <footer className="px-3 py-2 text-[9px] flex items-center justify-between" style={{ borderTop: "1px solid #0b2b36", color: "var(--color-text-secondary)" }}>
               <span>Made with <span style={{ color: "var(--color-accent-red)" }}>♥</span> — <span style={{ color: "var(--color-accent-green)" }}>Hacker UI</span> • <span style={{ color: "var(--color-accent-blue)" }}>2025</span></span>
               <span style={{ color: "var(--color-accent-green)" }}>Version 1.0</span>
@@ -555,5 +545,4 @@ export default function HackerUIProfile() {
       </div>
     </MotionConfig>
   );
-}: "#02242d", border: "1px solid #05424a", color: "var(--color-text-main)" }}>Resume</a>
-                      <a className="block text-[10px] p-1 rounded text-center" href="#" style={{ backgroundColor
+}
