@@ -69,24 +69,42 @@ const globalStyles = `
     .text-lg { font-size: 0.875rem !important; }
 
     body { overflow-x: hidden; }
-    aside { width: 100% !important; border-right: none !important; border-bottom: 1px solid var(--color-border-sub); padding: 0.75rem !important; }
+    .sidebar { 
+      position: fixed; 
+      top: 0; 
+      left: -100%; 
+      width: 80%; 
+      height: 100vh; 
+      z-index: 50; 
+      transition: left 0.3s ease-in-out; 
+      overflow-y: auto; 
+    }
+    .sidebar.open { left: 0; }
+    .overlay { 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100vh; 
+      background: rgba(0,0,0,0.5); 
+      z-index: 40; 
+      opacity: 0; 
+      visibility: hidden; 
+      transition: opacity 0.3s ease-in-out; 
+    }
+    .overlay.open { opacity: 1; visibility: visible; }
+    .hamburger { display: block; z-index: 60; }
     nav button { padding: 0.5rem 0.75rem !important; font-size: 0.75rem !important; }
     main { width: 100%; padding: 1rem !important; }
     .header { flex-direction: column !important; align-items: flex-start !important; gap: 0.75rem !important; }
     .content-grid { flex-direction: column !important; height: auto !important; }
     .content-grid > div { width: 100% !important; }
     iframe { height: 200px !important; }
-
-    /* Sidebar slide-in */
-    .sidebar { position: fixed; top: 0; left: -100%; width: 80%; height: 100vh; z-index: 50; transition: left 0.3s ease-in-out; overflow-y: auto; }
-    .sidebar.open { left: 0; }
-    .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0,0,0,0.5); z-index: 40; opacity: 0; visibility: hidden; transition: opacity 0.3s ease-in-out; }
-    .overlay.open { opacity: 1; visibility: visible; }
-    .hamburger { display: block; z-index: 60; }
   }
 
   @media (min-width: 769px) {
     .hamburger { display: none; }
+    .sidebar { position: relative !important; left: 0 !important; }
   }
 
   /* Ultra small devices */
@@ -99,7 +117,7 @@ const globalStyles = `
 export default function HackerUIProfile() {
   const [activePane, setActivePane] = useState("terminal");
   const [terminalLines, setTerminalLines] = useState([
-    "Welcome to Ade's hacker-style portfolio — 2025 interface",
+    "Welcome to A9Pro's portfolio — interface",
     "Type 'help' for commands.",
   ]);
   const [cmd, setCmd] = useState("");
@@ -197,7 +215,6 @@ export default function HackerUIProfile() {
 
   useEffect(() => {
     runPreview();
-    // cleanup object URLs only when we implement revoking
   }, []);
 
   return (
@@ -208,11 +225,16 @@ export default function HackerUIProfile() {
         <div className="flex h-screen flex-col md:flex-row">
           {/* Sidebar */}
           <aside
-            className={`sidebar ${sidebarOpen ? "open" : ""} w-full md:w-64 border-b md:border-b-0 md:border-r p-3 flex flex-col`}
+            className={`sidebar ${sidebarOpen ? "open" : ""}`}
             style={{
               backgroundColor: "var(--color-bg-secondary)",
               borderColor: "var(--color-border)",
               background: "linear-gradient(180deg, var(--color-bg-secondary) 0%, #041426 50%, #021018 100%)",
+              width: "16rem",
+              borderRight: "1px solid var(--color-border)",
+              padding: "0.75rem",
+              display: "flex",
+              flexDirection: "column"
             }}
             aria-hidden={sidebarOpen ? "false" : "true"}
           >
@@ -295,7 +317,7 @@ export default function HackerUIProfile() {
           </aside>
 
           <main className="flex-1 flex flex-col overflow-hidden p-4 overflow-y-auto">
-            {/* Mobile hamburger */}
+            {/* Mobile hamburger - FIXED: added hamburger class */}
             <button
               className="hamburger md:hidden mb-3 p-2 rounded"
               onClick={() => setSidebarOpen((s) => !s)}
@@ -305,8 +327,12 @@ export default function HackerUIProfile() {
               ☰
             </button>
 
-            {/* overlay */}
-            <div className={`overlay ${sidebarOpen ? "open" : ""}`} onClick={() => setSidebarOpen(false)} aria-hidden={!sidebarOpen} />
+            {/* overlay - FIXED: added onClick handler */}
+            <div 
+              className={`overlay ${sidebarOpen ? "open" : ""}`} 
+              onClick={() => setSidebarOpen(false)} 
+              aria-hidden={!sidebarOpen} 
+            />
 
             <div className="rounded-lg p-3 h-full" style={{ background: "linear-gradient(180deg, #02111a 0%, #041422 100%)", border: "1px solid var(--color-border-sub)" }}>
               {/* header */}
@@ -348,7 +374,7 @@ export default function HackerUIProfile() {
               <div className="flex gap-2 h-[calc(100%-60px)] content-grid">
                 {/* left (main) */}
                 <div className="flex-1 flex flex-col gap-2">
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="rounded-lg p-2.5" style={{ backgroundColor: "#031926", border: "1px solid var(--color-border-sub)" }}>
                       <div className="flex items-center justify-between mb-2">
                         <div>
@@ -464,15 +490,16 @@ export default function HackerUIProfile() {
                           <button onClick={runPreview} className="px-2 py-0.5 rounded text-[10px]" style={{ backgroundColor: "#02414a", border: "1px solid #05565d", color: "var(--color-text-main)" }}>
                             Run
                           </button>
-                          <button onClick={() => {
-                            const textarea = document.createElement("textarea");
-                            textarea.value = editorCode;
-                            document.body.appendChild(textarea);
-                            textarea.select();
-                            document.execCommand("copy");
-                            document.body.removeChild(textarea);
-                            appendTerminal("Code copied to clipboard");
-                          }} className="px-2 py-0.5 rounded text-[10px]" style={{ border: "1px solid #05565d", color: "var(--color-text-main)" }}>
+                          {/* FIXED: Modern Clipboard API */}
+                          <button 
+                            onClick={() => {
+                              navigator.clipboard.writeText(editorCode)
+                                .then(() => appendTerminal("Code copied to clipboard"))
+                                .catch(() => appendTerminal("Failed to copy code"));
+                            }} 
+                            className="px-2 py-0.5 rounded text-[10px]" 
+                            style={{ border: "1px solid #05565d", color: "var(--color-text-main)" }}
+                          >
                             Copy
                           </button>
                         </div>
@@ -482,7 +509,7 @@ export default function HackerUIProfile() {
                 </div>
 
                 {/* right column */}
-                <div className="w-full md:w-48 right-column flex flex-col gap-2">
+                <div className="w-full lg:w-48 right-column flex flex-col gap-2">
                   <div className="rounded-lg p-2.5" style={{ backgroundColor: "#02151a", border: "1px solid var(--color-border-sub)" }}>
                     <h4 className="text-[10px] font-semibold" style={{ color: "var(--color-accent-red)" }}>Profile</h4>
                     <p className="text-[9px] mb-2" style={{ color: "var(--color-text-secondary)" }}>Lagos • Maker • Trader • Dev</p>
