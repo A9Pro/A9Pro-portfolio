@@ -60,11 +60,6 @@ const globalStyles = `
     transform: translateY(1px);
   }
 
-  html, body {
-    overscroll-behavior-y: contain;
-    -webkit-overflow-scrolling: touch;
-  }
-
   /* Mobile Responsive Styles */
   @media (max-width: 768px) {
     .header, .content-grid { flex-direction: column; align-items: flex-start; }
@@ -83,18 +78,11 @@ const globalStyles = `
     iframe { height: 200px !important; }
 
     /* Sidebar slide-in */
-    .sidebar { position: fixed; top: 0; left: -100%; width: 75%; max-width: 280px; height: 100vh; z-index: 50; transition: left 0.3s ease-in-out; overflow-y: auto; }
+    .sidebar { position: fixed; top: 0; left: -100%; width: 80%; height: 100vh; z-index: 50; transition: left 0.3s ease-in-out; overflow-y: auto; }
     .sidebar.open { left: 0; }
     .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0,0,0,0.5); z-index: 40; opacity: 0; visibility: hidden; transition: opacity 0.3s ease-in-out; }
     .overlay.open { opacity: 1; visibility: visible; }
     .hamburger { display: block; z-index: 60; }
-
-    .content-grid {
-      display: flex;
-      flex-direction: column !important;
-      height: auto !important;
-      overflow-y: visible !important;
-    }
   }
 
   @media (min-width: 769px) {
@@ -217,7 +205,7 @@ export default function HackerUIProfile() {
       <style>{globalStyles}</style>
 
       <div className="min-h-screen w-full" style={{ backgroundColor: "var(--color-bg-primary)", color: "var(--color-text-main)" }}>
-        <div className="flex flex-col md:flex-row min-h-screen">
+        <div className="flex h-screen flex-col md:flex-row">
           {/* Sidebar */}
           <aside
             className={`sidebar ${sidebarOpen ? "open" : ""} w-full md:w-64 border-b md:border-b-0 md:border-r p-3 flex flex-col`}
@@ -357,7 +345,7 @@ export default function HackerUIProfile() {
               </div>
 
               {/* content */}
-              <div className="flex flex-col md:flex-row gap-2 content-grid h-auto md:h-[calc(100%-60px)]">
+              <div className="flex gap-2 h-[calc(100%-60px)] content-grid">
                 {/* left (main) */}
                 <div className="flex-1 flex flex-col gap-2">
                   <div className="grid grid-cols-2 gap-2">
