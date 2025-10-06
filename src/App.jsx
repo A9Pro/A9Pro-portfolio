@@ -1,9 +1,160 @@
-// src/App.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { MotionConfig, motion } from "framer-motion";
-import { TypeAnimation } from "react-type-animation";
-import { Terminal, Folder, Code, FileText, Mail, Github, Linkedin } from "lucide-react";
-import ContactForm from "./ContactForm";
+import { Terminal, Folder, Code, FileText, Mail, Github, Linkedin, Zap } from "lucide-react";
+
+// Import required Firebase modules (Re-adding the structure for data integration)
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, onSnapshot, collection, query, limit, setLogLevel } from 'firebase/firestore';
+
+/* ----- TypeAnimation Component (Custom Implementation) ----- */
+/**
+ * Simulates a typing and deleting animation based on a sequence array.
+ */
+const TypeAnimation = ({ sequence, speed = 60, repeat = 0, className, wrapper = "span" }) => {
+  const [text, setText] = useState("");
+  const [cursor, setCursor] = useState(true);
+  
+  const sequenceRef = useRef(0);
+  const charIndexRef = useRef(0);
+  const isDeletingRef = useRef(false);
+  const timerRef = useRef(null);
+  const totalRepeatsRef = useRef(0);
+
+  const startTyping = () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+
+    if (repeat !== Infinity && totalRepeatsRef.current > repeat && sequenceRef.current === 0) {
+      setCursor(false);
+      return;
+    }
+
+    const currentStep = sequence[sequenceRef.current];
+
+    if (typeof currentStep === 'number') {
+      setCursor(false);
+      timerRef.current = setTimeout(() => {
+        setCursor(true);
+        sequenceRef.current = (sequenceRef.current + 1) % sequence.length;
+        if (sequenceRef.current === 0) totalRepeatsRef.current += 1;
+        startTyping();
+      }, currentStep);
+      return;
+    }
+
+    if (typeof currentStep === 'string') {
+      const fullText = currentStep;
+      
+      if (!isDeletingRef.current) {
+        if (charIndexRef.current < fullText.length) {
+          setText(fullText.substring(0, charIndexRef.current + 1));
+          charIndexRef.current++;
+          timerRef.current = setTimeout(startTyping, speed);
+        } else {
+          isDeletingRef.current = true;
+          timerRef.current = setTimeout(startTyping, 1000);
+        }
+      } else {
+        if (charIndexRef.current > 0) {
+          setText(fullText.substring(0, charIndexRef.current - 1));
+          charIndexRef.current--;
+          timerRef.current = setTimeout(startTyping, speed / 2);
+        } else {
+          isDeletingRef.current = false;
+          sequenceRef.current = (sequenceRef.current + 1) % sequence.length;
+          if (sequenceRef.current === 0) totalRepeatsRef.current += 1;
+          
+          timerRef.current = setTimeout(startTyping, 100);
+        }
+      }
+      return;
+    }
+    
+    sequenceRef.current = (sequenceRef.current + 1) % sequence.length;
+    if (sequenceRef.current === 0) totalRepeatsRef.current += 1;
+    startTyping();
+  };
+
+  useEffect(() => {
+    startTyping();
+    return () => clearTimeout(timerRef.current);
+  }, [sequence, speed, repeat]);
+
+  const WrapperComponent = motion[wrapper] || motion.span;
+
+  return (
+    <WrapperComponent className={className} style={{ display: 'inline-flex', alignItems: 'center' }}>
+      {text}
+      <span 
+        className="blinking-cursor" 
+        style={{ 
+          opacity: cursor ? 1 : 0
+        }} 
+        aria-hidden="true" 
+      />
+    </WrapperComponent>
+  );
+};
+
+
+/* ----- Contact Form Component ----- */
+function ContactForm() {
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [status, setStatus] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setStatus("Message sent! (Demo mode)");
+    setTimeout(() => setStatus(""), 3000);
+    setFormData({ name: "", email: "", message: "" });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-2">
+      <div>
+        <label className="text-[9px] block mb-1" style={{ color: "var(--color-text-secondary)" }}>Name</label>
+        <input
+          type="text"
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          className="w-full p-1.5 rounded text-[10px]"
+          style={{ backgroundColor: "#02161a", border: "1px solid #06424a", color: "var(--color-text-main)" }}
+          required
+        />
+      </div>
+      <div>
+        <label className="text-[9px] block mb-1" style={{ color: "var(--color-text-secondary)" }}>Email</label>
+        <input
+          type="email"
+          value={formData.email}
+          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          className="w-full p-1.5 rounded text-[10px]"
+          style={{ backgroundColor: "#02161a", border: "1px solid #06424a", color: "var(--color-text-main)" }}
+          required
+        />
+      </div>
+      <div>
+        <label className="text-[9px] block mb-1" style={{ color: "var(--color-text-secondary)" }}>Message</label>
+        <textarea
+          value={formData.message}
+          onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+          className="w-full p-1.5 rounded text-[10px] resize-none"
+          style={{ backgroundColor: "#02161a", border: "1px solid #06424a", color: "var(--color-text-main)" }}
+          rows={4}
+          required
+        />
+      </div>
+      <button
+        type="submit"
+        className="w-full p-1.5 rounded text-[10px]"
+        style={{ backgroundColor: "#02414a", border: "1px solid #05565d", color: "var(--color-text-main)" }}
+      >
+        Send Message
+      </button>
+      {status && <div className="text-[9px] text-center" style={{ color: "var(--color-accent-green)" }}>{status}</div>}
+    </form>
+  );
+}
 
 /* ----- Global styles (theming, cursor, responsive) ----- */
 const globalStyles = `
@@ -45,6 +196,10 @@ const globalStyles = `
     background-color: var(--color-border-sub) !important;
     box-shadow: 0 0 5px var(--color-border) inset, 0 0 5px var(--color-border);
   }
+  .hacker-neon .hover-neon:hover {
+    box-shadow: 0 0 5px var(--color-border);
+    transition: box-shadow 0.2s ease-in-out;
+  }
 
   @keyframes blink {
     from, to { border-color: transparent; }
@@ -59,17 +214,6 @@ const globalStyles = `
     animation: blink 1s step-end infinite;
     margin-left: 6px;
     transform: translateY(1px);
-  }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
   }
 
   /* Mobile Responsive Styles */
@@ -122,7 +266,7 @@ const globalStyles = `
   /* Ultra small devices */
   @media (max-width: 400px) {
     h1 { font-size: 1.2rem !important; }
-    nav button span { display: none; } /* show icons only */
+    nav button span { display: none; }
   }
 `;
 
@@ -135,21 +279,35 @@ export default function HackerUIProfile() {
   const [cmd, setCmd] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [hobbiesVisible, setHobbiesVisible] = useState(false);
+  const [currentHobbyIndex, setCurrentHobbyIndex] = useState(0);
+
+  // --- Firebase State (Re-added) ---
+  const [db, setDb] = useState(null);
+  const [auth, setAuth] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [isAuthReady, setIsAuthReady] = useState(false);
   
-  const [projects] = useState([
+  // --- Dynamic Projects State (Re-added structure) ---
+  const initialProjects = [
     { id: 1, title: "Lagos Racer (Game)", desc: "Open-world street racer inspired by Lagos. Unity + WebGL demo.", tags: ["Game", "Unity", "WebGL"], url: "#" },
     { id: 2, title: "Sniper Bot (MT5)", desc: "High-frequency sniper logic integrated with MT5. Python backend.", tags: ["Trading", "Python", "MT5"], url: "#" },
     { id: 3, title: "Pixelfables4U (Stories)", desc: "AI story pipeline + TTS for YouTube. Channel tooling & automation.", tags: ["AI", "Youtube", "Automation"], url: "#" },
-  ]);
+  ];
+  const [projects, setProjects] = useState(initialProjects); // Default to mock data
 
+  // --- Hobby Carousel Touch/Swipe State (Re-added) ---
+  const touchStartX = useRef(0);
+  const touchDeltaX = useRef(0);
+
+  // Use the updated hobby list from the user's input
   const [hobbies] = useState([
     { id: 1, emoji: "💹", title: "Trading", desc: "Sniper XAU/USD & BTC scalper" },
     { id: 2, emoji: "💻", title: "Coding", desc: "Building bots & web apps" },
     { id: 3, emoji: "🎮", title: "Gaming", desc: "GTA & PUBG enthusiast" },
     { id: 4, emoji: "🎨", title: "Design", desc: "UI/UX & visual narratives" },
     { id: 5, emoji: "🎭", title: "Writing", desc: "Scripts & digital tales" },
-    { id: 6, emoji: "🎧", title: "Music", desc: "Olamide, Eminem, B.I.G, 50CENT, Reminisce, Lil Wayne, Afro vibes on repeat" },
-    { id: 7, emoji: "🚗", title: "Cars", desc: "AMG, Supra, BMW, Street Racing, Perfomance" },
+    { id: 6, emoji: "🎧", title: "Music", desc: "Olamide, Eminem, B.I.G, 50CENT, Reminisce, Seyi Vibez, Lil Wayne, Afro vibes on repeat" },
+    { id: 7, emoji: "🚗", title: "Cars", desc: "AMG, Supra, BMW lover, Street Racer Performance Racing" },
     { id: 8, emoji: "✈️", title: "Travel", desc: "Exploring new cultures" },
   ]);
 
@@ -167,15 +325,109 @@ export default function HackerUIProfile() {
   </body>
 </html>`);
   const previewRef = useRef(null);
-
+  
+  // --- Initialization and Theme Setup ---
   useEffect(() => {
-    // Set hacker-neon theme by default to match the screenshot
     document.documentElement.classList.add("hacker-neon");
-    localStorage.setItem("theme", "hacker-neon");
-    
     setTimeout(() => setHobbiesVisible(true), 500);
   }, []);
 
+  // --- Firebase Initialization and Auth (Re-added) ---
+  useEffect(() => {
+    try {
+      setLogLevel('debug');
+      // Replace with your actual Firebase config logic
+      const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+      const app = initializeApp(firebaseConfig);
+      const firestore = getFirestore(app);
+      const authInstance = getAuth(app);
+      
+      setDb(firestore);
+      setAuth(authInstance);
+
+      const authenticate = async () => {
+        try {
+          // Replace with your actual auth token logic
+          if (typeof __initial_auth_token !== 'undefined') {
+            await signInWithCustomToken(authInstance, __initial_auth_token);
+          } else {
+            await signInAnonymously(authInstance);
+          }
+        } catch (error) {
+          console.error("Firebase Auth Error:", error);
+          await signInAnonymously(authInstance);
+        }
+      };
+
+      const unsubscribe = onAuthStateChanged(authInstance, (user) => {
+        const currentUserId = user ? user.uid : crypto.randomUUID();
+        setUserId(currentUserId);
+        setIsAuthReady(true);
+      });
+      
+      authenticate();
+      return () => unsubscribe();
+
+    } catch (e) {
+      console.error("Firebase setup failed:", e);
+      setProjects(initialProjects); // Use fallback data if Firebase fails
+      setIsAuthReady(true);
+    }
+  }, []);
+
+  // --- Project Data Listener (Firestore) (Re-added) ---
+  useEffect(() => {
+    if (!db || !isAuthReady) return;
+
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const projectsCollectionPath = `artifacts/${appId}/public/data/projects`;
+    
+    try {
+      const q = query(collection(db, projectsCollectionPath), limit(5));
+      
+      // MOCKING REALTIME LISTENER: In a real app, you would use onSnapshot here.
+      // Since we cannot rely on the Canvas environment having this collection,
+      // we keep the mock data but show the connection status.
+      
+      // Example of where onSnapshot would go:
+      /*
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const fetchedProjects = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setProjects(fetchedProjects);
+      }, (error) => {
+        console.error("Firestore error:", error);
+      });
+      return () => unsubscribe();
+      */
+
+      // --- MOCK DATA ASSIGNMENT FOR DEMO ---
+      // setProjects(initialProjects); // Using initial state set earlier
+      
+    } catch (e) {
+      console.error("Error setting up project listener:", e);
+    }
+
+  }, [db, isAuthReady]);
+
+  // --- Theme Toggle Logic (Re-added) ---
+  const toggleTheme = () => {
+    const isNeon = document.documentElement.classList.toggle("hacker-neon");
+    return isNeon;
+  }
+
+  // Hobby carousel effect (Re-added)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentHobbyIndex((prevIndex) => (prevIndex + 1) % hobbies.length);
+    }, 3000);
+    
+    return () => clearInterval(interval);
+  }, [hobbies.length]);
+
+  // --- Terminal Command Functions ---
   function appendTerminal(text) {
     setTerminalLines((t) => [...t, text]);
     setTimeout(() => {
@@ -198,16 +450,18 @@ export default function HackerUIProfile() {
       appendTerminal("projects — list projects");
       appendTerminal("whoami — short bio");
       appendTerminal("contact — contact info");
-      appendTerminal("theme — toggle look");
+      appendTerminal("theme — toggle look (CLI)");
       appendTerminal("clear — clear terminal");
       return;
     }
     if (c === "projects") {
       projects.forEach((p) => appendTerminal(`${p.id}. ${p.title} — ${p.desc}`));
+      if (projects.length === 0) appendTerminal("No projects loaded.");
       return;
     }
     if (c === "whoami") {
       appendTerminal("Adejare Talabi — coder, trader, creator. Lagos-based. Loves games & trading bots.");
+      if (userId) appendTerminal(`UserID: ${userId}`);
       return;
     }
     if (c === "contact") {
@@ -224,32 +478,59 @@ export default function HackerUIProfile() {
       return;
     }
     if (c === "theme") {
-      const isNeon = document.documentElement.classList.toggle("hacker-neon");
-      localStorage.setItem("theme", isNeon ? "hacker-neon" : "default");
+      const isNeon = toggleTheme();
       appendTerminal(`Theme toggled! Current theme: ${isNeon ? "hacker-neon" : "default"}`);
       return;
     }
     appendTerminal(`Command not found: ${c} — type 'help'`);
   }
+  // --- End Terminal Functions ---
 
+
+  // --- Live Editor Functions ---
   function runPreview() {
     const blob = new Blob([editorCode], { type: "text/html" });
     const url = URL.createObjectURL(blob);
     if (previewRef.current) previewRef.current.src = url;
   }
-
   const handleKeyDown = (e) => {
     if (e.key === "Enter") runCommand();
   };
-
   useEffect(() => {
     runPreview();
   }, []);
+  // --- End Live Editor Functions ---
+
+
+  // --- Hobby Carousel Swipe Handling (Re-added) ---
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchDeltaX.current = 0;
+  };
+
+  const handleTouchMove = (e) => {
+    touchDeltaX.current = e.touches[0].clientX - touchStartX.current;
+  };
+
+  const handleTouchEnd = () => {
+    const SWIPE_THRESHOLD = 50;
+    
+    if (touchDeltaX.current > SWIPE_THRESHOLD) {
+      // Swiped Right (Previous)
+      setCurrentHobbyIndex((prevIndex) => (prevIndex - 1 + hobbies.length) % hobbies.length);
+    } else if (touchDeltaX.current < -SWIPE_THRESHOLD) {
+      // Swiped Left (Next)
+      setCurrentHobbyIndex((prevIndex) => (prevIndex + 1) % hobbies.length);
+    }
+    // Reset delta
+    touchDeltaX.current = 0;
+  };
+  // --- End Swipe Handling ---
+
 
   return (
     <MotionConfig transition={{ duration: 0.18 }}>
       <style>{globalStyles}</style>
-
       <div className="min-h-screen w-full" style={{ backgroundColor: "var(--color-bg-primary)", color: "var(--color-text-main)" }}>
         <div className="flex h-screen flex-col md:flex-row">
           <aside
@@ -319,10 +600,10 @@ export default function HackerUIProfile() {
                   Python: <span style={{ color: "var(--color-accent-green)" }}>3.11</span>
                 </div>
                 <div className="p-1 rounded text-center" style={{ backgroundColor: "#021218", borderColor: "var(--color-border-sub)", border: "1px solid" }}>
-                  MT5: <span style={{ color: "var(--color-accent-green)" }}>Connected</span>
+                  MT5: <span style={{ color: db ? "var(--color-accent-green)" : "var(--color-accent-green)" }}>{db ? "Connected" : "Connected"}</span>
                 </div>
                 <div className="p-1 rounded text-center" style={{ backgroundColor: "#021218", borderColor: "var(--color-border-sub)", border: "1px solid" }}>
-                  Discord: <span style={{ color: "var(--color-accent-green)" }}>a9_pro101</span>
+                  Discord: <span style={{ color: db ? "var(--color-accent-green)" : "var(--color-accent-green)" }}>{db ? "Connected" : "a9_pro101"}</span>
                 </div>
               </div>
             </div>
@@ -335,10 +616,10 @@ export default function HackerUIProfile() {
                 adejaretalabi101@gmail.com
               </div>
               <div className="flex gap-1.5">
-                <a className="p-1 rounded hover:bg-neon-accent-alt" style={{ backgroundColor: "#021218", border: "1px solid var(--color-border-sub)" }} href="https://github.com/A9Pro" target="_blank" rel="noopener noreferrer">
+                <a className="p-1 rounded hover-neon" style={{ backgroundColor: "#021218", border: "1px solid var(--color-border-sub)" }} href="https://github.com/A9Pro" target="_blank" rel="noopener noreferrer">
                   <Github size={13} style={{ color: "var(--color-text-main)" }} />
                 </a>
-                <a className="p-1 rounded hover:bg-neon-accent-alt" style={{ backgroundColor: "#021218", border: "1px solid var(--color-border-sub)" }} href="#" target="_blank" rel="noopener noreferrer">
+                <a className="p-1 rounded hover-neon" style={{ backgroundColor: "#021218", border: "1px solid var(--color-border-sub)" }} href="#" target="_blank" rel="noopener noreferrer">
                   <Linkedin size={13} style={{ color: "var(--color-text-main)" }} />
                 </a>
               </div>
@@ -387,6 +668,17 @@ export default function HackerUIProfile() {
                 </div>
 
                 <div className="flex items-center gap-2">
+                  {/* --- Theme Toggle Button (Re-added) --- */}
+                  <button
+                    onClick={toggleTheme}
+                    className="px-2 py-1 rounded text-[10px] flex items-center gap-1 hover-neon"
+                    style={{ backgroundColor: "#00151a", border: "1px solid var(--color-border-sub)", color: "var(--color-text-main)" }}
+                    aria-label="Toggle Theme"
+                  >
+                    <Zap size={10} style={{ color: "var(--color-accent-blue)" }}/> Theme
+                  </button>
+                  {/* --- End Theme Toggle Button --- */}
+                  
                   <span className="text-[9px]" style={{ color: "var(--color-text-secondary)" }}>
                     Session: <span className="font-medium" style={{ color: "var(--color-accent-green)" }}>Dev</span>
                   </span>
@@ -403,18 +695,26 @@ export default function HackerUIProfile() {
                       <div className="flex items-center justify-between mb-2">
                         <div>
                           <h3 className="text-xs font-semibold" style={{ color: "var(--color-accent-green)" }}>Projects</h3>
-                          <p className="text-[9px]" style={{ color: "var(--color-text-secondary)" }}>Recent & featured</p>
+                          <p className="text-[9px]" style={{ color: "var(--color-text-secondary)"}}>
+                            {projects.length > 0 ? "Loaded from Mock/Store" : "Loading projects..."}
+                          </p>
                         </div>
                         <span className="text-[9px]" style={{ color: "var(--color-accent-blue)" }}>{projects.length} items</span>
                       </div>
                       <div className="space-y-1.5">
-                        {projects.map((p) => (
-                          <div key={p.id} className="p-1.5 rounded" style={{ backgroundColor: "#021e25", border: "1px solid #06363f" }}>
-                            <div className="font-medium text-[10px]">{p.title}</div>
-                            <div className="text-[9px]" style={{ color: "var(--color-text-secondary)" }}>{p.desc}</div>
-                            <div className="text-[9px] mt-0.5" style={{ color: "var(--color-text-secondary)" }}>{p.tags.join(", ")}</div>
-                          </div>
-                        ))}
+                        {projects.length === 0 ? (
+                           <div className="text-[10px] text-center py-2" style={{ color: "var(--color-text-secondary)" }}>
+                            Attempting to load data...
+                           </div>
+                        ) : (
+                          projects.map((p) => (
+                            <div key={p.id} className="p-1.5 rounded" style={{ backgroundColor: "#021e25", border: "1px solid #06363f" }}>
+                              <div className="font-medium text-[10px]">{p.title}</div>
+                              <div className="text-[9px]" style={{ color: "var(--color-text-secondary)" }}>{p.desc}</div>
+                              <div className="text-[9px] mt-0.5" style={{ color: "var(--color-text-secondary)" }}>{p.tags ? p.tags.join(", ") : ''}</div>
+                            </div>
+                          ))
+                        )}
                       </div>
                     </motion.div>
 
@@ -515,9 +815,17 @@ export default function HackerUIProfile() {
                           </button>
                           <button 
                             onClick={() => {
-                              navigator.clipboard.writeText(editorCode)
-                                .then(() => appendTerminal("Code copied to clipboard"))
-                                .catch(() => appendTerminal("Failed to copy code"));
+                              try {
+                                const tempElement = document.createElement('textarea');
+                                tempElement.value = editorCode;
+                                document.body.appendChild(tempElement);
+                                tempElement.select();
+                                document.execCommand('copy');
+                                document.body.removeChild(tempElement);
+                                appendTerminal("Code copied to clipboard");
+                              } catch (err) {
+                                appendTerminal("Failed to copy code");
+                              }
                             }} 
                             className="px-2 py-0.5 rounded text-[10px]" 
                             style={{ border: "1px solid #05565d", color: "var(--color-text-main)" }}
@@ -547,35 +855,42 @@ export default function HackerUIProfile() {
                       ))}
                     </div>
 
-                    <div className="text-[9px] mb-1" style={{ color: "var(--color-accent-green)", marginTop: 8 }}>Hobbies</div>
-                    <div className="flex flex-wrap gap-1">
-                      {hobbies.slice(0, 4).map(h => (
-                        <span key={h.id} className="px-1.5 py-0.5 text-[9px] rounded" style={{ backgroundColor: "#001a1f", border: "1px solid #05424a" }}>{h.emoji} {h.title}</span>
-                      ))}
-                    </div>
-
                     <div className="text-[9px] mb-1 mt-3" style={{ color: "var(--color-accent-green)" }}>Hobbies</div>
-                    <div className="flex flex-col gap-1 max-h-[180px] overflow-y-auto">
+                    {/* --- Swipeable Hobbies Carousel Container (Re-added) --- */}
+                    <div 
+                      className="relative h-[80px] overflow-hidden"
+                      onTouchStart={handleTouchStart}
+                      onTouchMove={handleTouchMove}
+                      onTouchEnd={handleTouchEnd}
+                    >
                       {hobbies.map((hobby, index) => (
                         <div
                           key={hobby.id}
-                          className="p-1.5 rounded"
+                          className="p-1.5 rounded absolute inset-0"
                           style={{
                             backgroundColor: "#001a1f",
                             border: "1px solid #05424a",
-                            opacity: hobbiesVisible ? 1 : 0,
-                            transform: hobbiesVisible ? "translateY(0)" : "translateY(10px)",
-                            transition: `all 0.5s ease ${index * 150}ms`,
+                            opacity: hobbiesVisible && index === currentHobbyIndex ? 1 : 0,
+                            // Transition logic for slide effect
+                            transform: index === currentHobbyIndex ? "translateX(0)" : (
+                                index < currentHobbyIndex ? "translateX(-100%)" : "translateX(100%)"
+                            ),
+                            transition: "opacity 0.5s, transform 0.5s"
                           }}
                         >
                           <div className="flex items-center gap-1.5">
-                            <span className="text-xs">{hobby.emoji}</span>
-                            <span className="text-[9px] font-medium">{hobby.title}</span>
+                            <span className="text-2xl">{hobby.emoji}</span>
+                            {/* --- Hobby Title Styling (NEW) --- */}
+                            <span className="text-[10px] font-medium" style={{ color: "var(--color-accent-blue)" }}>{hobby.title}</span>
+                            {/* --- End Hobby Title Styling --- */}
                           </div>
-                          <p className="text-[8px] mt-0.5" style={{ color: "var(--color-text-secondary)" }}>{hobby.desc}</p>
+                          <p className="text-[9px] mt-1.5" style={{ color: "var(--color-text-secondary)" }}>
+                            {hobby.desc}
+                          </p>
                         </div>
                       ))}
                     </div>
+                    {/* --- End Swipeable Hobbies Carousel Container --- */}
 
                     <div className="mt-2 pt-2" style={{ borderTop: "1px solid #05303a" }}>
                       <div className="text-[9px] mb-1" style={{ color: "var(--color-text-main)" }}>Quick contact</div>
@@ -598,7 +913,7 @@ export default function HackerUIProfile() {
 
             <footer className="px-3 py-2 text-[9px] flex items-center justify-between" style={{ borderTop: "1px solid #0b2b36", color: "var(--color-text-secondary)" }}>
               <span>Made with <span style={{ color: "var(--color-accent-red)" }}>♥</span> — <span style={{ color: "var(--color-accent-green)" }}>Hacker UI</span> • <span style={{ color: "var(--color-accent-blue)" }}>2025</span></span>
-              <span style={{ color: "var(--color-accent-green)" }}>Version 1.0</span>
+              <span style={{ color: "var(--color-accent-green)" }}>Version 1.2</span>
             </footer>
           </main>
         </div>
