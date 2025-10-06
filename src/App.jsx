@@ -672,11 +672,11 @@ export default function HackerUIProfile() {
                 <div className="p-1 rounded text-center" style={{ backgroundColor: "#021218", borderColor: "var(--color-border-sub)", border: "1px solid" }}>
                   Python: <span style={{ color: "var(--color-accent-green)" }}>3.11</span>
                 </div>
-                <div className="p-1 rounded text-center" style={{ backgroundColor: "#021218", borderColor: "var(--color-border-sub)", border: "1px solid" }}>
-                  MT5: <span style={{ color: isMock ? "var(--color-accent-red)" : "var(--color-accent-green)" }}>{isMock ? "Mock" : "Connected"}</span>
+                 <div className="p-1 rounded text-center" style={{ backgroundColor: "#021218", borderColor: "var(--color-border-sub)", border: "1px solid" }}>
+                  MT5: <span style={{ color: "var(--color-accent-green)" }}>Connected</span>
                 </div>
                 <div className="p-1 rounded text-center" style={{ backgroundColor: "#021218", borderColor: "var(--color-border-sub)", border: "1px solid" }}>
-                  Discord: <span style={{ color: isMock ? "var(--color-accent-red)" : "var(--color-accent-green)" }}>{isMock ? "a9_pro101" : "a9_pro101"}</span>
+                  Discord: <span style={{ color: isMock ? "var(--color-accent-green)" : "var(--color-accent-green)" }}>{isMock ? "a9_pro101" : "a9_pro101"}</span>
                 </div>
               </div>
             </div>
