@@ -2,10 +2,65 @@ import React, { useEffect, useRef, useState } from "react";
 import { MotionConfig, motion } from "framer-motion";
 import { Terminal, Folder, Code, FileText, Mail, Github, Linkedin, Zap } from "lucide-react";
 
-// Import required Firebase modules (Re-adding the structure for data integration)
-import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, onSnapshot, collection, query, limit, setLogLevel } from 'firebase/firestore';
+// The standard module imports below are commented out to prevent Rollup/Vite errors
+// in environments where 'firebase' is not installed via npm but loaded via a global CDN.
+
+// import { initializeApp } from 'firebase/app';
+// import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
+// import { getFirestore, onSnapshot, collection, query, limit, setLogLevel } from 'firebase/firestore';
+
+/**
+ * Safely accesses the Firebase functions from the global scope, assuming they are
+ * loaded via modular CDN scripts. If not found, returns safe dummy functions
+ * to prevent runtime crashes.
+ */
+const getFirebaseFunctions = () => {
+  // Check for the presence of the key modular functions in the global scope
+  const isMock = !(
+    typeof window.initializeApp === 'function' &&
+    typeof window.getAuth === 'function' &&
+    typeof window.getFirestore === 'function'
+  );
+
+  if (isMock) {
+    // Return console-safe dummy functions
+    const dummyFunc = () => {};
+    const dummyPromise = () => Promise.resolve({ user: { uid: 'mock-user-id' } });
+    const dummyUnsub = () => (() => {});
+    
+    return {
+      initializeApp: dummyFunc,
+      getAuth: dummyFunc,
+      signInAnonymously: dummyPromise,
+      signInWithCustomToken: dummyPromise,
+      onAuthStateChanged: dummyUnsub,
+      getFirestore: dummyFunc,
+      onSnapshot: dummyUnsub,
+      collection: dummyFunc,
+      query: dummyFunc,
+      limit: dummyFunc,
+      setLogLevel: dummyFunc,
+      isMock: true // Flag to indicate mock mode
+    };
+  }
+
+  // If they are available, return the global functions (assuming modular loading)
+  return {
+    initializeApp: window.initializeApp,
+    getAuth: window.getAuth,
+    signInAnonymously: window.signInAnonymously,
+    signInWithCustomToken: window.signInWithCustomToken,
+    onAuthStateChanged: window.onAuthStateChanged,
+    getFirestore: window.getFirestore,
+    onSnapshot: window.onSnapshot,
+    collection: window.collection,
+    query: window.query,
+    limit: window.limit,
+    setLogLevel: window.setLogLevel,
+    isMock: false // Flag to indicate real mode
+  };
+};
+
 
 /* ----- TypeAnimation Component (Custom Implementation) ----- */
 /**
@@ -287,6 +342,9 @@ export default function HackerUIProfile() {
   const [userId, setUserId] = useState(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
   
+  // Get Firebase functions via the local helper for build compatibility
+  const { initializeApp, getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, getFirestore, onSnapshot, collection, query, limit, setLogLevel, isMock } = getFirebaseFunctions();
+  
   // --- Dynamic Projects State (Re-added structure) ---
   const initialProjects = [
     { id: 1, title: "Lagos Racer (Game)", desc: "Open-world street racer inspired by Lagos. Unity + WebGL demo.", tags: ["Game", "Unity", "WebGL"], url: "#" },
@@ -332,10 +390,19 @@ export default function HackerUIProfile() {
     setTimeout(() => setHobbiesVisible(true), 500);
   }, []);
 
-  // --- Firebase Initialization and Auth (Re-added) ---
+  // --- Firebase Initialization and Auth ---
   useEffect(() => {
     try {
+      if (isMock) { 
+        console.warn("Firebase SDK not fully loaded. Running in Mock Data Mode.");
+        setProjects(initialProjects);
+        setIsAuthReady(true);
+        return;
+      }
+      
+      // If not in mock mode, these are safe to call
       setLogLevel('debug');
+      
       // Replace with your actual Firebase config logic
       const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
       const app = initializeApp(firebaseConfig);
@@ -375,14 +442,20 @@ export default function HackerUIProfile() {
     }
   }, []);
 
-  // --- Project Data Listener (Firestore) (Re-added) ---
+  // --- Project Data Listener (Firestore) ---
   useEffect(() => {
-    if (!db || !isAuthReady) return;
+    if (!db || !isAuthReady || isMock) return;
 
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
     const projectsCollectionPath = `artifacts/${appId}/public/data/projects`;
     
     try {
+      // Ensure required Firestore functions are available (should be covered by isMock check, but added for safety)
+      if (typeof collection !== 'function' || typeof query !== 'function' || typeof limit !== 'function' || typeof onSnapshot !== 'function') {
+          console.warn("Required Firestore functions not available globally, skipping real-time listener.");
+          return;
+      }
+        
       const q = query(collection(db, projectsCollectionPath), limit(5));
       
       // MOCKING REALTIME LISTENER: In a real app, you would use onSnapshot here.
@@ -410,7 +483,7 @@ export default function HackerUIProfile() {
       console.error("Error setting up project listener:", e);
     }
 
-  }, [db, isAuthReady]);
+  }, [db, isAuthReady, isMock]);
 
   // --- Theme Toggle Logic (Re-added) ---
   const toggleTheme = () => {
@@ -600,10 +673,10 @@ export default function HackerUIProfile() {
                   Python: <span style={{ color: "var(--color-accent-green)" }}>3.11</span>
                 </div>
                 <div className="p-1 rounded text-center" style={{ backgroundColor: "#021218", borderColor: "var(--color-border-sub)", border: "1px solid" }}>
-                  MT5: <span style={{ color: db ? "var(--color-accent-green)" : "var(--color-accent-green)" }}>{db ? "Connected" : "Connected"}</span>
+                  MT5: <span style={{ color: isMock ? "var(--color-accent-red)" : "var(--color-accent-green)" }}>{isMock ? "Mock" : "Connected"}</span>
                 </div>
                 <div className="p-1 rounded text-center" style={{ backgroundColor: "#021218", borderColor: "var(--color-border-sub)", border: "1px solid" }}>
-                  Discord: <span style={{ color: db ? "var(--color-accent-green)" : "var(--color-accent-green)" }}>{db ? "Connected" : "a9_pro101"}</span>
+                  Discord: <span style={{ color: isMock ? "var(--color-accent-red)" : "var(--color-accent-green)" }}>{isMock ? "a9_pro101" : "a9_pro101"}</span>
                 </div>
               </div>
             </div>
@@ -696,7 +769,7 @@ export default function HackerUIProfile() {
                         <div>
                           <h3 className="text-xs font-semibold" style={{ color: "var(--color-accent-green)" }}>Projects</h3>
                           <p className="text-[9px]" style={{ color: "var(--color-text-secondary)"}}>
-                            {projects.length > 0 ? "Loaded from Mock/Store" : "Loading projects..."}
+                            {isMock ? "Loaded from Mock Data" : (projects.length > 0 ? "Loaded from Store" : "Loading projects...")}
                           </p>
                         </div>
                         <span className="text-[9px]" style={{ color: "var(--color-accent-blue)" }}>{projects.length} items</span>
