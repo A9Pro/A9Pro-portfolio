@@ -149,7 +149,7 @@ export default function HackerUIProfile() {
     { id: 4, emoji: "🎨", title: "Design", desc: "UI/UX & visual narratives" },
     { id: 5, emoji: "🎭", title: "Writing", desc: "Scripts & digital tales" },
     { id: 6, emoji: "🎧", title: "Music", desc: "Afro vibes on repeat" },
-    { id: 7, emoji: "🚗", title: "Cars/Street Racing", desc: "AMG, Supra, BMW lover" },
+    { id: 7, emoji: "🚗", title: "Cars", desc: "AMG, Supra, BMW lover" },
     { id: 8, emoji: "✈️", title: "Travel", desc: "Exploring new cultures" },
   ]);
 
@@ -545,11 +545,27 @@ export default function HackerUIProfile() {
                         <span key={skill} className="px-1.5 py-0.5 text-[9px] rounded" style={{ backgroundColor: "#001a1f", border: "1px solid #05424a" }}>{skill}</span>
                       ))}
                     </div>
-            
-                    <div className="text-[9px] mb-1" style={{ color: "var(--color-accent-green)", marginTop: 8 }}>Hobbies</div>
-                    <div className="flex flex-wrap gap-1">
-                      {hobbies.slice(0, 8).map(h => (
-                        <span key={h.id} className="px-1.5 py-0.5 text-[9px] rounded" style={{ backgroundColor: "#001a1f", border: "1px solid #05424a" }}>{h.emoji} {h.title}</span>
+
+                    <div className="text-[9px] mb-1 mt-3" style={{ color: "var(--color-accent-green)" }}>Hobbies</div>
+                    <div className="flex flex-col gap-1 max-h-[180px] overflow-y-auto">
+                      {hobbies.map((hobby, index) => (
+                        <div
+                          key={hobby.id}
+                          className="p-1.5 rounded"
+                          style={{
+                            backgroundColor: "#001a1f",
+                            border: "1px solid #05424a",
+                            opacity: hobbiesVisible ? 1 : 0,
+                            transform: hobbiesVisible ? "translateY(0)" : "translateY(10px)",
+                            transition: `all 0.5s ease ${index * 150}ms`,
+                          }}
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs">{hobby.emoji}</span>
+                            <span className="text-[9px] font-medium">{hobby.title}</span>
+                          </div>
+                          <p className="text-[8px] mt-0.5" style={{ color: "var(--color-text-secondary)" }}>{hobby.desc}</p>
+                        </div>
                       ))}
                     </div>
 
