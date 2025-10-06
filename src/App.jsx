@@ -186,7 +186,10 @@ export default function HackerUIProfile() {
     if (c === "contact") {
       appendTerminal("Email: adejaretalabi101@gmail.com");
       appendTerminal("Telegram: 969657262");
-      appendTerminal("Github: github.com/cryptothugg101");
+      appendTerminal("X: cryptothugg101");
+      appendTerminal("Discord: A9Pro");
+      appendTerminal("SnapChat: hicethugg");
+      appendTerminal("Github: github.com/A9Pro");
       return;
     }
     if (c === "clear") {
