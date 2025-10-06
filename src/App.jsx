@@ -61,6 +61,17 @@ const globalStyles = `
     transform: translateY(1px);
   }
 
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   /* Mobile Responsive Styles */
   @media (max-width: 768px) {
     .header, .content-grid { flex-direction: column; align-items: flex-start; }
@@ -123,10 +134,23 @@ export default function HackerUIProfile() {
   ]);
   const [cmd, setCmd] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [hobbiesVisible, setHobbiesVisible] = useState(false);
+  
   const [projects] = useState([
     { id: 1, title: "Lagos Racer (Game)", desc: "Open-world street racer inspired by Lagos. Unity + WebGL demo.", tags: ["Game", "Unity", "WebGL"], url: "#" },
     { id: 2, title: "Sniper Bot (MT5)", desc: "High-frequency sniper logic integrated with MT5. Python backend.", tags: ["Trading", "Python", "MT5"], url: "#" },
     { id: 3, title: "Pixelfables4U (Stories)", desc: "AI story pipeline + TTS for YouTube. Channel tooling & automation.", tags: ["AI", "Youtube", "Automation"], url: "#" },
+  ]);
+
+  const [hobbies] = useState([
+    { id: 1, emoji: "💹", title: "Trading", desc: "Sniper XAU/USD & BTC scalper" },
+    { id: 2, emoji: "💻", title: "Coding", desc: "Building bots & web apps" },
+    { id: 3, emoji: "🎮", title: "Gaming", desc: "GTA & PUBG enthusiast" },
+    { id: 4, emoji: "🎨", title: "Design", desc: "UI/UX & visual narratives" },
+    { id: 5, emoji: "🎭", title: "Writing", desc: "Scripts & digital tales" },
+    { id: 6, emoji: "🎧", title: "Music", desc: "Afro vibes on repeat" },
+    { id: 7, emoji: "🚗", title: "Cars/Street Racing", desc: "AMG, Supra, BMW lover" },
+    { id: 8, emoji: "✈️", title: "Travel", desc: "Exploring new cultures" },
   ]);
 
   const [editorCode, setEditorCode] = useState(`<!doctype html>
@@ -147,6 +171,8 @@ export default function HackerUIProfile() {
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "hacker-neon") document.documentElement.classList.add("hacker-neon");
+    
+    setTimeout(() => setHobbiesVisible(true), 500);
   }, []);
 
   function appendTerminal(text) {
@@ -187,7 +213,7 @@ export default function HackerUIProfile() {
       appendTerminal("Email: adejaretalabi101@gmail.com");
       appendTerminal("Telegram: 969657262");
       appendTerminal("X: cryptothugg101");
-      appendTerminal("Discord: A9Pro");
+      appendTerminal("Discord: a9_pro101");
       appendTerminal("SnapChat: hicethugg");
       appendTerminal("Github: github.com/A9Pro");
       return;
@@ -295,7 +321,7 @@ export default function HackerUIProfile() {
                   MT5: <span style={{ color: "var(--color-accent-green)" }}>Connected</span>
                 </div>
                 <div className="p-1 rounded text-center" style={{ backgroundColor: "#021218", borderColor: "var(--color-border-sub)", border: "1px solid" }}>
-                  Discord: <span style={{ color: "var(--color-accent-red)" }}>Offline</span>
+                  Discord: <span style={{ color: "var(--color-accent-green)" }}>a9_pro101</span>
                 </div>
               </div>
             </div>
@@ -308,7 +334,7 @@ export default function HackerUIProfile() {
                 adejaretalabi101@gmail.com
               </div>
               <div className="flex gap-1.5">
-                <a className="p-1 rounded hover:bg-neon-accent-alt" style={{ backgroundColor: "#021218", border: "1px solid var(--color-border-sub)" }} href="https://github.com/cryptothugg101" target="_blank" rel="noopener noreferrer">
+                <a className="p-1 rounded hover:bg-neon-accent-alt" style={{ backgroundColor: "#021218", border: "1px solid var(--color-border-sub)" }} href="https://github.com/A9Pro" target="_blank" rel="noopener noreferrer">
                   <Github size={13} style={{ color: "var(--color-text-main)" }} />
                 </a>
                 <a className="p-1 rounded hover:bg-neon-accent-alt" style={{ backgroundColor: "#021218", border: "1px solid var(--color-border-sub)" }} href="#" target="_blank" rel="noopener noreferrer">
@@ -512,11 +538,18 @@ export default function HackerUIProfile() {
                 <div className="w-full lg:w-48 right-column flex flex-col gap-2">
                   <div className="rounded-lg p-2.5" style={{ backgroundColor: "#02151a", border: "1px solid var(--color-border-sub)" }}>
                     <h4 className="text-[10px] font-semibold" style={{ color: "var(--color-accent-red)" }}>Profile</h4>
-                    <p className="text-[9px] mb-2" style={{ color: "var(--color-text-secondary)" }}>Lagos • Maker • Trader • Dev</p>
+                    <p className="text-[9px] mb-2" style={{ color: "var(--color-text-secondary)" }}>Lagos • Maker • Trader • Gamer • Dev</p>
                     <div className="text-[9px] mb-1" style={{ color: "var(--color-accent-green)" }}>Skills</div>
                     <div className="flex flex-wrap gap-1">
                       {["React", "Python", "MT5", "Unity"].map((skill) => (
                         <span key={skill} className="px-1.5 py-0.5 text-[9px] rounded" style={{ backgroundColor: "#001a1f", border: "1px solid #05424a" }}>{skill}</span>
+                      ))}
+                    </div>
+            
+                    <div className="text-[9px] mb-1" style={{ color: "var(--color-accent-green)", marginTop: 8 }}>Hobbies</div>
+                    <div className="flex flex-wrap gap-1">
+                      {hobbies.slice(0, 8).map(h => (
+                        <span key={h.id} className="px-1.5 py-0.5 text-[9px] rounded" style={{ backgroundColor: "#001a1f", border: "1px solid #05424a" }}>{h.emoji} {h.title}</span>
                       ))}
                     </div>
 
@@ -548,4 +581,4 @@ export default function HackerUIProfile() {
       </div>
     </MotionConfig>
   );
-}"" 
+}
