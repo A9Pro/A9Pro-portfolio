@@ -1,9 +1,167 @@
 // src/App.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { MotionConfig, motion } from "framer-motion";
-import { TypeAnimation } from "react-type-animation";
 import { Terminal, Folder, Code, FileText, Mail, Github, Linkedin } from "lucide-react";
-import ContactForm from "./ContactForm";
+
+/* ----- TypeAnimation Component (Custom Implementation) ----- */
+/**
+ * Simulates a typing and deleting animation based on a sequence array.
+ * Sequence items can be strings (text to type/delete) or numbers (delay in ms).
+ */
+const TypeAnimation = ({ sequence, speed = 60, repeat = 0, className, wrapper = "span" }) => {
+  const [text, setText] = useState("");
+  const [cursor, setCursor] = useState(true);
+  
+  // Refs for persistent state across renders
+  const sequenceRef = useRef(0);
+  const charIndexRef = useRef(0);
+  const isDeletingRef = useRef(false);
+  const timerRef = useRef(null);
+  const totalRepeatsRef = useRef(0);
+
+  const startTyping = () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+
+    // Stop condition for non-infinite repeat
+    if (repeat !== Infinity && totalRepeatsRef.current > repeat && sequenceRef.current === 0) {
+      setCursor(false);
+      return;
+    }
+
+    const currentStep = sequence[sequenceRef.current];
+
+    if (typeof currentStep === 'number') {
+      // It's a delay. Pause and move to the next step.
+      setCursor(false);
+      timerRef.current = setTimeout(() => {
+        setCursor(true);
+        sequenceRef.current = (sequenceRef.current + 1) % sequence.length;
+        if (sequenceRef.current === 0) totalRepeatsRef.current += 1;
+        startTyping();
+      }, currentStep);
+      return;
+    }
+
+    if (typeof currentStep === 'string') {
+      const fullText = currentStep;
+      
+      if (!isDeletingRef.current) {
+        // Typing phase
+        if (charIndexRef.current < fullText.length) {
+          setText(fullText.substring(0, charIndexRef.current + 1));
+          charIndexRef.current++;
+          timerRef.current = setTimeout(startTyping, speed);
+        } else {
+          // Done typing, move to deleting phase after a short pause
+          isDeletingRef.current = true;
+          timerRef.current = setTimeout(startTyping, 1000); // Pause before deleting
+        }
+      } else {
+        // Deleting phase
+        if (charIndexRef.current > 0) {
+          setText(fullText.substring(0, charIndexRef.current - 1));
+          charIndexRef.current--;
+          timerRef.current = setTimeout(startTyping, speed / 2); // Faster deletion
+        } else {
+          // Done deleting, move to next string step
+          isDeletingRef.current = false;
+          sequenceRef.current = (sequenceRef.current + 1) % sequence.length;
+          if (sequenceRef.current === 0) totalRepeatsRef.current += 1;
+          
+          timerRef.current = setTimeout(startTyping, 100); // Small delay to start next step
+        }
+      }
+      return;
+    }
+    
+    // Fallback: move to next sequence item if current one is unexpected
+    sequenceRef.current = (sequenceRef.current + 1) % sequence.length;
+    if (sequenceRef.current === 0) totalRepeatsRef.current += 1;
+    startTyping();
+  };
+
+  useEffect(() => {
+    startTyping();
+    return () => clearTimeout(timerRef.current);
+  }, [sequence, speed, repeat]); // Dependency array to reset if props change
+
+  const WrapperComponent = motion[wrapper] || motion.span;
+
+  return (
+    <WrapperComponent className={className} style={{ display: 'inline-flex', alignItems: 'center' }}>
+      {text}
+      <span 
+        className="blinking-cursor" 
+        style={{ 
+          // Use the 'blinking-cursor' class from globalStyles, 
+          // and control visibility with opacity
+          opacity: cursor ? 1 : 0
+        }} 
+        aria-hidden="true" 
+      />
+    </WrapperComponent>
+  );
+};
+
+
+/* ----- Contact Form Component ----- */
+function ContactForm() {
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [status, setStatus] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setStatus("Message sent! (Demo mode)");
+    setTimeout(() => setStatus(""), 3000);
+    setFormData({ name: "", email: "", message: "" });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-2">
+      <div>
+        <label className="text-[9px] block mb-1" style={{ color: "var(--color-text-secondary)" }}>Name</label>
+        <input
+          type="text"
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          className="w-full p-1.5 rounded text-[10px]"
+          style={{ backgroundColor: "#02161a", border: "1px solid #06424a", color: "var(--color-text-main)" }}
+          required
+        />
+      </div>
+      <div>
+        <label className="text-[9px] block mb-1" style={{ color: "var(--color-text-secondary)" }}>Email</label>
+        <input
+          type="email"
+          value={formData.email}
+          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          className="w-full p-1.5 rounded text-[10px]"
+          style={{ backgroundColor: "#02161a", border: "1px solid #06424a", color: "var(--color-text-main)" }}
+          required
+        />
+      </div>
+      <div>
+        <label className="text-[9px] block mb-1" style={{ color: "var(--color-text-secondary)" }}>Message</label>
+        <textarea
+          value={formData.message}
+          onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+          className="w-full p-1.5 rounded text-[10px] resize-none"
+          style={{ backgroundColor: "#02161a", border: "1px solid #06424a", color: "var(--color-text-main)" }}
+          rows={4}
+          required
+        />
+      </div>
+      <button
+        type="submit"
+        className="w-full p-1.5 rounded text-[10px]"
+        style={{ backgroundColor: "#02414a", border: "1px solid #05565d", color: "var(--color-text-main)" }}
+      >
+        Send Message
+      </button>
+      {status && <div className="text-[9px] text-center" style={{ color: "var(--color-accent-green)" }}>{status}</div>}
+    </form>
+  );
+}
 
 /* ----- Global styles (theming, cursor, responsive) ----- */
 const globalStyles = `
@@ -122,7 +280,7 @@ const globalStyles = `
   /* Ultra small devices */
   @media (max-width: 400px) {
     h1 { font-size: 1.2rem !important; }
-    nav button span { display: none; } /* show icons only */
+    nav button span { display: none; }
   }
 `;
 
@@ -135,6 +293,7 @@ export default function HackerUIProfile() {
   const [cmd, setCmd] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [hobbiesVisible, setHobbiesVisible] = useState(false);
+  const [currentHobbyIndex, setCurrentHobbyIndex] = useState(0);
   
   const [projects] = useState([
     { id: 1, title: "Lagos Racer (Game)", desc: "Open-world street racer inspired by Lagos. Unity + WebGL demo.", tags: ["Game", "Unity", "WebGL"], url: "#" },
@@ -148,8 +307,8 @@ export default function HackerUIProfile() {
     { id: 3, emoji: "🎮", title: "Gaming", desc: "GTA & PUBG enthusiast" },
     { id: 4, emoji: "🎨", title: "Design", desc: "UI/UX & visual narratives" },
     { id: 5, emoji: "🎭", title: "Writing", desc: "Scripts & digital tales" },
-    { id: 6, emoji: "🎧", title: "Music", desc: "Olamide, Eminem, B.I.G, 50CENT, Reminisce, Lil Wayne, Afro vibes on repeat" },
-    { id: 7, emoji: "🚗", title: "Cars", desc: "AMG, Supra, BMW, Street Racing, Perfomance" },
+    { id: 6, emoji: "🎧", title: "Music", desc: "Olamide, Eminem, B.I.G, 50CENT, Reminisce, Seyi Vibez, Lil Wayne, Afro vibes on repeat" },
+    { id: 7, emoji: "🚗", title: "Cars", desc: "AMG, Supra, BMW lover, Street Racer Performance Racing" },
     { id: 8, emoji: "✈️", title: "Travel", desc: "Exploring new cultures" },
   ]);
 
@@ -169,12 +328,18 @@ export default function HackerUIProfile() {
   const previewRef = useRef(null);
 
   useEffect(() => {
-    // Set hacker-neon theme by default to match the screenshot
     document.documentElement.classList.add("hacker-neon");
-    localStorage.setItem("theme", "hacker-neon");
-    
     setTimeout(() => setHobbiesVisible(true), 500);
   }, []);
+
+  // Hobby carousel effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentHobbyIndex((prevIndex) => (prevIndex + 1) % hobbies.length);
+    }, 3000);
+    
+    return () => clearInterval(interval);
+  }, [hobbies.length]);
 
   function appendTerminal(text) {
     setTerminalLines((t) => [...t, text]);
@@ -225,7 +390,6 @@ export default function HackerUIProfile() {
     }
     if (c === "theme") {
       const isNeon = document.documentElement.classList.toggle("hacker-neon");
-      localStorage.setItem("theme", isNeon ? "hacker-neon" : "default");
       appendTerminal(`Theme toggled! Current theme: ${isNeon ? "hacker-neon" : "default"}`);
       return;
     }
@@ -233,6 +397,7 @@ export default function HackerUIProfile() {
   }
 
   function runPreview() {
+    // We use a Blob and object URL for security and to allow the iframe to load content
     const blob = new Blob([editorCode], { type: "text/html" });
     const url = URL.createObjectURL(blob);
     if (previewRef.current) previewRef.current.src = url;
@@ -242,6 +407,7 @@ export default function HackerUIProfile() {
     if (e.key === "Enter") runCommand();
   };
 
+  // Initial preview render
   useEffect(() => {
     runPreview();
   }, []);
@@ -368,6 +534,7 @@ export default function HackerUIProfile() {
                     &lt;A9Pro /&gt;
                   </motion.h1>
 
+                  {/* TypeAnimation component is now defined */}
                   <TypeAnimation
                     sequence={[
                       "Full-Stack Developer...",
@@ -515,9 +682,18 @@ export default function HackerUIProfile() {
                           </button>
                           <button 
                             onClick={() => {
-                              navigator.clipboard.writeText(editorCode)
-                                .then(() => appendTerminal("Code copied to clipboard"))
-                                .catch(() => appendTerminal("Failed to copy code"));
+                              // Fallback for document.execCommand('copy') in environments where navigator.clipboard is restricted
+                              try {
+                                const tempElement = document.createElement('textarea');
+                                tempElement.value = editorCode;
+                                document.body.appendChild(tempElement);
+                                tempElement.select();
+                                document.execCommand('copy');
+                                document.body.removeChild(tempElement);
+                                appendTerminal("Code copied to clipboard");
+                              } catch (err) {
+                                appendTerminal("Failed to copy code");
+                              }
                             }} 
                             className="px-2 py-0.5 rounded text-[10px]" 
                             style={{ border: "1px solid #05565d", color: "var(--color-text-main)" }}
@@ -547,32 +723,28 @@ export default function HackerUIProfile() {
                       ))}
                     </div>
 
-                    <div className="text-[9px] mb-1" style={{ color: "var(--color-accent-green)", marginTop: 8 }}>Hobbies</div>
-                    <div className="flex flex-wrap gap-1">
-                      {hobbies.slice(0, 4).map(h => (
-                        <span key={h.id} className="px-1.5 py-0.5 text-[9px] rounded" style={{ backgroundColor: "#001a1f", border: "1px solid #05424a" }}>{h.emoji} {h.title}</span>
-                      ))}
-                    </div>
-
                     <div className="text-[9px] mb-1 mt-3" style={{ color: "var(--color-accent-green)" }}>Hobbies</div>
-                    <div className="flex flex-col gap-1 max-h-[180px] overflow-y-auto">
+                    <div className="relative h-[80px] overflow-hidden">
                       {hobbies.map((hobby, index) => (
                         <div
                           key={hobby.id}
-                          className="p-1.5 rounded"
+                          className="p-1.5 rounded absolute inset-0 transition-all duration-500"
                           style={{
                             backgroundColor: "#001a1f",
                             border: "1px solid #05424a",
-                            opacity: hobbiesVisible ? 1 : 0,
-                            transform: hobbiesVisible ? "translateY(0)" : "translateY(10px)",
-                            transition: `all 0.5s ease ${index * 150}ms`,
+                            // Control visibility and position for smooth fade/slide transition
+                            opacity: hobbiesVisible && index === currentHobbyIndex ? 1 : 0,
+                            transform: index === currentHobbyIndex ? "translateY(0)" : "translateY(100%)",
+                            transition: "opacity 0.5s, transform 0.5s"
                           }}
                         >
                           <div className="flex items-center gap-1.5">
-                            <span className="text-xs">{hobby.emoji}</span>
-                            <span className="text-[9px] font-medium">{hobby.title}</span>
+                            <span className="text-2xl">{hobby.emoji}</span>
+                            <span className="text-[10px] font-medium">{hobby.title}</span>
                           </div>
-                          <p className="text-[8px] mt-0.5" style={{ color: "var(--color-text-secondary)" }}>{hobby.desc}</p>
+                          <p className="text-[9px] mt-1.5" style={{ color: "var(--color-text-secondary)" }}>
+                            {hobby.desc}
+                          </p>
                         </div>
                       ))}
                     </div>
@@ -606,3 +778,4 @@ export default function HackerUIProfile() {
     </MotionConfig>
   );
 }
+
