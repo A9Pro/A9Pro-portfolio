@@ -880,8 +880,8 @@ export default function HackerUIProfile() {
                         >
                           <div className="flex items-center gap-1.5">
                             <span className="text-2xl">{hobby.emoji}</span>
-                            {/* --- Hobby Title Styling (NEW) --- */}
-                            <span className="text-[10px] font-medium" style={{ color: "var(--color-accent-blue)" }}>{hobby.title}</span>
+                            {/* --- Hobby Title Styling (MODIFIED for Yellow) --- */}
+                            <span className="text-[10px] font-medium" style={{ color: "#FFFF00" }}>{hobby.title}</span>
                             {/* --- End Hobby Title Styling --- */}
                           </div>
                           <p className="text-[9px] mt-1.5" style={{ color: "var(--color-text-secondary)" }}>
