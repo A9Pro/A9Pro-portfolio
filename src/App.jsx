@@ -148,8 +148,8 @@ export default function HackerUIProfile() {
     { id: 3, emoji: "🎮", title: "Gaming", desc: "GTA & PUBG enthusiast" },
     { id: 4, emoji: "🎨", title: "Design", desc: "UI/UX & visual narratives" },
     { id: 5, emoji: "🎭", title: "Writing", desc: "Scripts & digital tales" },
-    { id: 6, emoji: "🎧", title: "Music", desc: "Afro vibes on repeat" },
-    { id: 7, emoji: "🚗", title: "Cars", desc: "AMG, Supra, BMW lover" },
+    { id: 6, emoji: "🎧", title: "Music", desc: "Olamide, Eminem, B.I.G, 50CENT, Reminisce, Lil Wayne, Afro vibes on repeat" },
+    { id: 7, emoji: "🚗", title: "Cars", desc: "AMG, Supra, BMW, Street Racing, Perfomance" },
     { id: 8, emoji: "✈️", title: "Travel", desc: "Exploring new cultures" },
   ]);
 
@@ -169,8 +169,9 @@ export default function HackerUIProfile() {
   const previewRef = useRef(null);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "hacker-neon") document.documentElement.classList.add("hacker-neon");
+    // Set hacker-neon theme by default to match the screenshot
+    document.documentElement.classList.add("hacker-neon");
+    localStorage.setItem("theme", "hacker-neon");
     
     setTimeout(() => setHobbiesVisible(true), 500);
   }, []);
@@ -543,6 +544,13 @@ export default function HackerUIProfile() {
                     <div className="flex flex-wrap gap-1">
                       {["React", "Python", "MT5", "Unity"].map((skill) => (
                         <span key={skill} className="px-1.5 py-0.5 text-[9px] rounded" style={{ backgroundColor: "#001a1f", border: "1px solid #05424a" }}>{skill}</span>
+                      ))}
+                    </div>
+
+                    <div className="text-[9px] mb-1" style={{ color: "var(--color-accent-green)", marginTop: 8 }}>Hobbies</div>
+                    <div className="flex flex-wrap gap-1">
+                      {hobbies.slice(0, 4).map(h => (
+                        <span key={h.id} className="px-1.5 py-0.5 text-[9px] rounded" style={{ backgroundColor: "#001a1f", border: "1px solid #05424a" }}>{h.emoji} {h.title}</span>
                       ))}
                     </div>
 
