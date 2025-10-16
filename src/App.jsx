@@ -338,7 +338,7 @@ export default function HackerUIProfile() {
     { id: 3, emoji: "🎮", title: "Gaming", desc: "GTA & PUBG enthusiast" },
     { id: 4, emoji: "🎨", title: "Design", desc: "UI/UX & visual narratives" },
     { id: 5, emoji: "🎭", title: "Writing", desc: "Scripts & digital tales" },
-    { id: 6, emoji: "🎧", title: "Music", desc: "Olamide, Eminem, B.I.G, 50CENT, Reminisce, Seyi Vibez, Lil Wayne, Afro vibes on repeat" },
+    { id: 6, emoji: "🎧", title: "Music", desc: "Olamide, Eminem, B.I.G, Rick Ro$$,50CENT, Reminisce, Seyi Vibez, Lil Wayne, Afro vibes on repeat" },
     { id: 7, emoji: "🚗", title: "Cars", desc: "AMG, Supra, BMW lover, Street Racer Performance Racing" },
     { id: 8, emoji: "✈️", title: "Travel", desc: "Exploring new cultures" },
   ]);
