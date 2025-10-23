@@ -1,5 +1,6 @@
+import emailjs from "@emailjs/browser";
 import React, { useEffect, useRef, useState } from "react";
-import { MotionConfig, motion } from "framer-motion";
+import { MotionConfig, motion, AnimatePresence } from "framer-motion";
 import { Terminal, Folder, Code, FileText, Mail, Github, Linkedin, Zap } from "lucide-react";
 
 const getFirebaseFunctions = () => {
@@ -44,6 +45,352 @@ const getFirebaseFunctions = () => {
     setLogLevel: window.setLogLevel,
     isMock: false
   };
+};
+
+const formatDateTime = (date) => {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  let hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+
+  const period = hours >= 12 ? "PM" : "AM";
+  if (hours === 0) hours = 12;
+  else if (hours > 12) hours = hours - 12;
+  const displayHours = String(hours).padStart(2, '0');
+
+  return `${day}/${month}/${year} ${displayHours}:${minutes}:${seconds} ${period}`;
+};
+
+const WelcomeLoader = ({ onComplete, minMs = 4000, audioSrc = "/startup.mp3" }) => {
+  const [deviceInfo, setDeviceInfo] = useState({
+    device: "Detecting...",
+    location: "Detecting...",
+    dateTime: formatDateTime(new Date()),
+  });
+  const [loadProgress, setLoadProgress] = useState(0);
+  const [initText, setInitText] = useState("");
+  const fullText = "EXECUTE INIT SCRIPT";
+
+
+  const [worldTimes, setWorldTimes] = useState([]);
+
+
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+
+    if (audioSrc) {
+      try {
+        const a = new Audio(audioSrc);
+        a.preload = "auto";
+        a.volume = 0.25;
+
+        a.play().catch(() => {});
+        audioRef.current = a;
+      } catch (e) {
+        audioRef.current = null;
+      }
+    }
+    return () => {
+      if (audioRef.current) {
+        try { audioRef.current.pause(); } catch(e) {}
+        audioRef.current = null;
+      }
+    };
+  }, [audioSrc]);
+
+  useEffect(() => {
+
+    const timeTimer = setInterval(() => {
+      setDeviceInfo(prev => ({
+        ...prev,
+        dateTime: formatDateTime(new Date()),
+      }));
+    }, 1000);
+    return () => clearInterval(timeTimer);
+  }, []);
+
+  useEffect(() => {
+
+    const cities = [
+      { name: "New York", tz: "America/New_York" },
+      { name: "London", tz: "Europe/London" },
+      { name: "Dubai", tz: "Asia/Dubai" },
+      { name: "Tokyo", tz: "Asia/Tokyo" },
+      { name: "Sydney", tz: "Australia/Sydney" },
+    ];
+
+    const updateTimes = () => {
+      const now = new Date();
+      const formatted = cities.map((c) => {
+        const time = now.toLocaleTimeString("en-US", {
+          timeZone: c.tz,
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true,
+        });
+        return { name: c.name, time };
+      });
+      setWorldTimes(formatted);
+    };
+
+    updateTimes();
+    const t = setInterval(updateTimes, 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+
+    try {
+      const userAgent = (typeof navigator !== "undefined" && navigator.userAgent) ? navigator.userAgent : "";
+      let device = "Desktop (PC)";
+      if (/mobile/i.test(userAgent)) device = "Mobile (Phone)";
+      else if (/tablet/i.test(userAgent)) device = "Tablet (Pad)";
+      else if (/macintosh|mac os x/i.test(userAgent)) device = "Desktop (Mac)";
+
+      let location = "Earth";
+      if (typeof navigator !== "undefined" && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            location = `${latitude.toFixed(2)}°, ${longitude.toFixed(2)}°`;
+            setDeviceInfo(prev => ({ ...prev, device, location }));
+          },
+          () => {
+            setDeviceInfo(prev => ({ ...prev, device, location: "ACCESS DENIED" }));
+          },
+          { maximumAge: 60_000, timeout: 5000 }
+        );
+      } else {
+        setDeviceInfo(prev => ({ ...prev, device, location: "UNAVAILABLE" }));
+      }
+
+      const totalTime = Math.max(minMs, 4000);
+      const interval = 30;
+      let currentProgress = 0;
+
+      const progressTimer = setInterval(() => {
+        currentProgress += (interval / totalTime) * 100;
+        if (currentProgress >= 100) {
+          setLoadProgress(100);
+          clearInterval(progressTimer);
+
+          setTimeout(() => {
+            try { onComplete && onComplete(); } catch (e) {}
+          }, 500);
+        } else {
+          setLoadProgress(Math.min(100, currentProgress));
+        }
+      }, interval);
+
+      return () => clearInterval(progressTimer);
+    } catch (e) {
+      setTimeout(() => onComplete && onComplete(), minMs);
+    }
+  }, [onComplete, minMs]);
+
+  useEffect(() => {
+
+    let charIndex = 0;
+    setInitText('');
+    const delayBeforeTyping = 100;
+    
+    const startTyping = setTimeout(() => {
+        const typeTimer = setInterval(() => {
+            if (charIndex <= fullText.length) {
+              setInitText(fullText.substring(0, charIndex));
+              charIndex++;
+            } else {
+              clearInterval(typeTimer);
+            }
+        }, 70);
+        return () => clearInterval(typeTimer);
+    }, delayBeforeTyping);
+    
+    return () => clearTimeout(startTyping);
+  }, []);
+
+  const { device, location, dateTime } = deviceInfo;
+  const progressPercent = Math.floor(loadProgress);
+  const loadingBarWidth = `${progressPercent}%`;
+
+  const accentGreen = "#00ff99";
+  const hudBorder = `2px solid ${accentGreen}`;
+  const hudBoxShadow = `0 0 8px ${accentGreen}`;
+
+  return (
+    <motion.div
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.9 }}
+      className="fixed inset-0 flex items-center justify-center z-[100] font-mono overflow-hidden"
+      style={{ backgroundColor: "#000000" }}
+      aria-live="polite"
+      role="status"
+    >
+      <style>{`
+        .blinking-cursor {
+          display: inline-block;
+          width: 8px;
+          height: 12px;
+          margin-left: 2px;
+          background-color: ${accentGreen};
+          animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+          from, to { opacity: 0; }
+          50% { opacity: 1; }
+        }
+        .world-time-row { display:flex; justify-content:space-between; font-size:12px; }
+      `}</style>
+
+      <div className="flex flex-col items-center justify-center -translate-y-12 px-4">
+        {/* top HUD */}
+        <div style={{ position: 'relative', paddingBottom: '8px' }}>
+          <motion.div
+            animate={{ x: [0, 20, 0] }}
+            transition={{ duration: 3, repeat: Infinity }}
+            style={{
+              width: 220,
+              height: 30,
+              border: hudBorder,
+              backgroundImage: "repeating-linear-gradient(45deg, " + accentGreen + " 0, " + accentGreen + " 2px, transparent 2px, transparent 8px)",
+              backgroundSize: "12px 12px",
+              boxShadow: hudBoxShadow,
+            }}
+            aria-hidden="true"
+          />
+          <div style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', height: '8px', width: '2px', backgroundColor: accentGreen }} />
+        </div>
+
+        {/* main HUD row */}
+        <div className="flex items-end gap-2 mt-5" style={{ marginTop: 20 }}>
+          {/* left */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+              style={{
+                width: 80,
+                height: 80,
+                border: hudBorder,
+                borderRadius: "50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: hudBoxShadow,
+                position: "relative",
+              }}
+              aria-hidden="true"
+            >
+              <div style={{ width: 50, height: 50, border: `1px solid ${accentGreen}`, borderRadius: "50%" }} />
+              <motion.span 
+                animate={{ scale: [0.8, 1.1, 0.8] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+                style={{
+                  position: "absolute",
+                  color: accentGreen,
+                  fontSize: 24,
+                  fontWeight: "bold",
+                  textShadow: `0 0 10px ${accentGreen}`,
+                }}
+              >
+                {progressPercent}%
+              </motion.span>
+            </motion.div>
+            <div style={{ height: 8, width: 2, backgroundColor: accentGreen }} />
+            <div style={{ border: hudBorder, width: 100, height: 30, boxShadow: hudBoxShadow, marginTop: 2 }} />
+          </div>
+
+          {/* center */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            border: hudBorder,
+            padding: "8px 16px 12px",
+            minWidth: 360,
+            boxShadow: hudBoxShadow,
+            position: "relative",
+            color: accentGreen,
+            fontSize: 12,
+          }}>
+            <div style={{ position: "absolute", top: -2, right: -2, width: 10, height: 10, borderTop: hudBorder, borderRight: hudBorder }} />
+            <div style={{ position: "absolute", bottom: -2, left: -2, width: 10, height: 10, borderBottom: hudBorder, borderLeft: hudBorder }} />
+
+            <motion.div animate={{ y: [0, 60, 0] }} transition={{ duration: 2.5, repeat: Infinity }} style={{ position: "absolute", left: 0, right: 0, height: 2, backgroundColor: accentGreen, boxShadow: `0 0 10px ${accentGreen}`, opacity: 0.5 }} />
+
+            <div style={{ marginBottom: 8, position: "relative", zIndex: 10 }}>
+              <div className="flex justify-between mb-2">
+                <span>SYSTEM TIME/DATE:</span>
+                <span style={{ color: accentGreen, fontWeight: 'bold' }}>{dateTime}</span>
+              </div>
+              <div className="flex justify-between mb-2">
+                <span>DEVICE TYPE:</span>
+                <span style={{ color: accentGreen, fontWeight: 'bold' }}>{device}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>COORDINATES:</span>
+                <span style={{ color: accentGreen, fontWeight: 'bold' }}>{location}</span>
+              </div>
+            </div>
+
+            <div style={{ height: 1, backgroundColor: accentGreen, margin: "4px 0 8px", opacity: 0.5 }} />
+
+            <div style={{ position: "relative", zIndex: 10 }}>
+              <div style={{ position: "absolute", top: -10, left: 0, right: 0, display: "flex", justifyContent: "space-between", padding: "0 4px" }}>
+                {Array.from({ length: 13 }).map((_, i) => (
+                  <motion.div key={i} animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }} style={{ width: 4, height: 4, borderRadius: "50%", backgroundColor: accentGreen }} />
+                ))}
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ flexGrow: 1, height: 8, border: `1px solid ${accentGreen}`, position: "relative" }}>
+                  <motion.div initial={{ width: 0 }} animate={{ width: loadingBarWidth }} transition={{ duration: 0.1, ease: "linear" }} style={{ height: "100%", backgroundColor: accentGreen, boxShadow: `0 0 5px ${accentGreen}` }} />
+                </div>
+
+                <span style={{ fontSize: 14, fontWeight: "bold" }}>{progressPercent}%</span>
+              </div>
+            </div>
+
+            <div style={{ marginTop: 8, fontSize: 12, textAlign: "center" }}>
+              <motion.span animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2, repeat: Infinity }}>
+                SYSTEM BOOT UP SEQUENCE ACTIVE...
+              </motion.span>
+            </div>
+          </div>
+
+          {/* right */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <motion.div animate={{ rotate: -360 }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }} style={{ width: 80, height: 80, border: hudBorder, clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: hudBoxShadow, backgroundColor: 'rgba(0, 255, 153, 0.05)' }}>
+              <span style={{ color: accentGreen, fontSize: 36, fontWeight: "bold", textShadow: `0 0 10px ${accentGreen}` }}>$</span>
+            </motion.div>
+          </div>
+        </div>
+
+        <motion.div animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2, repeat: Infinity }} style={{ marginTop: 16, border: hudBorder, width: 420, height: "auto", minHeight: 40, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: accentGreen, fontSize: 12, boxShadow: hudBoxShadow, padding: 8 }}>
+          <div style={{ marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ fontFamily: "monospace", fontSize: 13 }}>{initText}</div>
+            {progressPercent < 100 && <span className="blinking-cursor" aria-hidden="true"></span>}
+          </div>
+
+          <div style={{ width: "100%", marginTop: 6 }}>
+            <div style={{ textAlign: "center", marginBottom: 6, fontSize: 12 }}>🌐 GLOBAL TIME (AM/PM)</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, width: "100%" }}>
+              {worldTimes.map((c) => (
+                <div key={c.name} className="world-time-row" style={{ color: accentGreen }}>
+                  <span style={{ textAlign: "left" }}>{c.name}</span>
+                  <span style={{ textAlign: "right" }}>{c.time}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </motion.div>
+  );
 };
 
 const TypeAnimation = ({ sequence, speed = 60, repeat = 0, className, wrapper = "span" }) => {
@@ -132,59 +479,133 @@ const TypeAnimation = ({ sequence, speed = 60, repeat = 0, className, wrapper = 
 };
 
 function ContactForm() {
-  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const form = useRef();
+  const [sending, setSending] = useState(false);
   const [status, setStatus] = useState("");
 
-  const handleSubmit = (e) => {
+  const sendEmail = async (e) => {
     e.preventDefault();
-    setStatus("Message sent! (Demo mode)");
-    setTimeout(() => setStatus(""), 3000);
-    setFormData({ name: "", email: "", message: "" });
+    setSending(true);
+    setStatus("");
+
+    try {
+      await emailjs.sendForm(
+        "service_ax1p5i3",    
+        "template_e256uwb",   
+                form.current,
+        "QDLxZEbqmEEezRLh3"    
+      );
+      setStatus("✅ Message sent successfully!");
+      form.current.reset();
+    } catch (error) {
+      console.error("Email send failed:", error);
+      setStatus("❌ Failed to send message. Try again later.");
+    } finally {
+      setSending(false);
+      setTimeout(() => setStatus(""), 4000);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-2">
+    <form
+      ref={form}
+      onSubmit={sendEmail}
+      className="space-y-3 max-w-md mx-auto p-3 rounded-lg shadow-lg transition-all"
+      style={{
+        backgroundColor: "#00191f",
+        border: "1px solid #043036",
+        boxShadow: "0 0 15px rgba(0, 255, 255, 0.05)",
+      }}
+    >
+      <h2
+        className="text-[12px] font-semibold mb-2 text-center"
+        style={{ color: "var(--color-accent-green)" }}
+      >
+        Contact Me
+      </h2>
+
       <div>
-        <label className="text-[9px] block mb-1" style={{ color: "var(--color-text-secondary)" }}>Name</label>
+        <label
+          className="text-[9px] block mb-1 font-medium"
+          style={{ color: "var(--color-text-secondary)" }}
+        >
+          Name
+        </label>
         <input
           type="text"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="w-full p-1.5 rounded text-[10px]"
-          style={{ backgroundColor: "#02161a", border: "1px solid #06424a", color: "var(--color-text-main)" }}
+          name="from_name"
           required
+          className="w-full p-2 rounded text-[10px] transition-all focus:outline-none"
+          style={{
+            backgroundColor: "#02161a",
+            border: "1px solid #06424a",
+            color: "var(--color-text-main)",
+          }}
         />
       </div>
+
       <div>
-        <label className="text-[9px] block mb-1" style={{ color: "var(--color-text-secondary)" }}>Email</label>
+        <label
+          className="text-[9px] block mb-1 font-medium"
+          style={{ color: "var(--color-text-secondary)" }}
+        >
+          Email
+        </label>
         <input
           type="email"
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          className="w-full p-1.5 rounded text-[10px]"
-          style={{ backgroundColor: "#02161a", border: "1px solid #06424a", color: "var(--color-text-main)" }}
+          name="reply_to"
           required
+          className="w-full p-2 rounded text-[10px] transition-all focus:outline-none"
+          style={{
+            backgroundColor: "#02161a",
+            border: "1px solid #06424a",
+            color: "var(--color-text-main)",
+          }}
         />
       </div>
+
       <div>
-        <label className="text-[9px] block mb-1" style={{ color: "var(--color-text-secondary)" }}>Message</label>
+        <label
+          className="text-[9px] block mb-1 font-medium"
+          style={{ color: "var(--color-text-secondary)" }}
+        >
+          Message
+        </label>
         <textarea
-          value={formData.message}
-          onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-          className="w-full p-1.5 rounded text-[10px] resize-none"
-          style={{ backgroundColor: "#02161a", border: "1px solid #06424a", color: "var(--color-text-main)" }}
+          name="message"
           rows={4}
           required
-        />
+          className="w-full p-2 rounded text-[10px] resize-none transition-all focus:outline-none"
+          style={{
+            backgroundColor: "#02161a",
+            border: "1px solid #06424a",
+            color: "var(--color-text-main)",
+          }}
+        ></textarea>
       </div>
+
       <button
         type="submit"
-        className="w-full p-1.5 rounded text-[10px]"
-        style={{ backgroundColor: "#02414a", border: "1px solid #05565d", color: "var(--color-text-main)" }}
+        disabled={sending}
+        className="w-full p-2 rounded text-[10px] font-medium transition-all"
+        style={{
+          backgroundColor: sending ? "#032d33" : "#02414a",
+          border: "1px solid #05565d",
+          color: "var(--color-text-main)",
+          opacity: sending ? 0.6 : 1,
+        }}
       >
-        Send Message
+        {sending ? "Sending..." : "Send Message"}
       </button>
-      {status && <div className="text-[9px] text-center" style={{ color: "var(--color-accent-green)" }}>{status}</div>}
+
+      {status && (
+        <div
+          className="text-[9px] text-center mt-2 transition-all"
+          style={{ color: "var(--color-accent-green)" }}
+        >
+          {status}
+        </div>
+      )}
     </form>
   );
 }
@@ -300,7 +721,7 @@ const globalStyles = `
   }
 `;
 
-export default function HackerUIProfile() {
+export function HackerUIProfileInner() {
   const [activePane, setActivePane] = useState("terminal");
   const [terminalLines, setTerminalLines] = useState([
     "Welcome to A9Pro's portfolio — interface",
@@ -311,7 +732,6 @@ export default function HackerUIProfile() {
   const [hobbiesVisible, setHobbiesVisible] = useState(false);
   const [currentHobbyIndex, setCurrentHobbyIndex] = useState(0);
   
-  // SOUND CONTROL STATE - NEW
   const [isMuted, setIsMuted] = useState(true);
   const audioRef = useRef(null);
 
@@ -338,7 +758,7 @@ export default function HackerUIProfile() {
     { id: 3, emoji: "🎮", title: "Gaming", desc: "GTA & PUBG enthusiast" },
     { id: 4, emoji: "🎨", title: "Design", desc: "UI/UX & visual narratives" },
     { id: 5, emoji: "🎭", title: "Writing", desc: "Scripts & digital tales" },
-    { id: 6, emoji: "🎧", title: "Music", desc: "Olamide, Eminem, B.I.G, 50CENT, Reminisce, Seyi Vibez, Lil Wayne, Afro vibes on repeat" },
+    { id: 6, emoji: "🎧", title: "Music", desc: "Olamide, Eminem, B.I.G, Rick Ro$$,50CENT, Reminisce, Seyi Vibez, Lil Wayne, Afro vibes on repeat" },
     { id: 7, emoji: "🚗", title: "Cars", desc: "AMG, Supra, BMW lover, Street Racer Performance Racing" },
     { id: 8, emoji: "✈️", title: "Travel", desc: "Exploring new cultures" },
   ]);
@@ -444,7 +864,6 @@ export default function HackerUIProfile() {
     return () => clearInterval(interval);
   }, [hobbies.length]);
 
-  // AUDIO CONTROL EFFECT - NEW
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = 0.2;
@@ -516,7 +935,6 @@ export default function HackerUIProfile() {
     appendTerminal(`Command not found: ${c} — type 'help'`);
   }
 
-  // TOGGLE SOUND FUNCTION - NEW
   const toggleSound = () => {
     setIsMuted(prev => !prev);
     appendTerminal(isMuted ? "Sound enabled" : "Sound muted");
@@ -704,8 +1122,7 @@ export default function HackerUIProfile() {
                     >
                       <Zap size={10} style={{ color: "var(--color-accent-blue)" }}/> Theme
                     </button>
-
-                    {/* SOUND BUTTON - NEW */}
+                    
                     <button
                       onClick={toggleSound}
                       className="px-2 py-1 rounded text-[10px] flex items-center gap-1 hover-neon"
@@ -952,7 +1369,6 @@ export default function HackerUIProfile() {
         </div>
       </MotionConfig>
       
-      {/* AUDIO ELEMENT - NEW */}
       <audio ref={audioRef} loop preload="auto">
         <source src="/ambient-cyber.mp3" type="audio/mpeg" />
         Your browser does not support audio.
@@ -960,3 +1376,80 @@ export default function HackerUIProfile() {
     </>
   );
 }
+
+const App = () => {
+  const [bootDone, setBootDone] = useState(false);
+  const [firebaseReady, setFirebaseReady] = useState(false);
+
+  useEffect(() => {
+    const wasBootShown = sessionStorage.getItem("bootDone");
+    if (wasBootShown === "true") {
+      setBootDone(true);
+    }
+  }, []);
+
+  useEffect(() => {
+
+    const { getAuth, onAuthStateChanged } = getFirebaseFunctions();
+    let unsub = null;
+    let readyTimeout = null;
+    let marked = false;
+
+    const markReady = () => {
+      if (!marked) {
+        marked = true;
+        setFirebaseReady(true);
+      }
+    };
+
+    try {
+
+      readyTimeout = setTimeout(markReady, 3000);
+
+      if (typeof onAuthStateChanged === "function") {
+        const fakeAuth = getAuth();
+        unsub = onAuthStateChanged(fakeAuth, (user) => markReady());
+      }
+    } catch {
+      readyTimeout = setTimeout(markReady, 3000);
+    }
+
+    return () => {
+      if (unsub) unsub();
+      if (readyTimeout) clearTimeout(readyTimeout);
+    };
+  }, []);
+
+  const handleBootComplete = () => {
+    setBootDone(true);
+    try { sessionStorage.setItem("bootDone", "true"); } catch(e) {}
+  };
+
+  return (
+    <MotionConfig reducedMotion="user">
+      <AnimatePresence mode="wait">
+        {!bootDone ? (
+          <WelcomeLoader
+            key="bootloader"
+            onComplete={handleBootComplete}
+            minMs={4000}
+            audioSrc="/startup.mp3"
+          />
+        ) : (
+          <motion.div
+            key="main"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.9 }}
+            className="main-wrapper"
+          >
+            <HackerUIProfileInner />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </MotionConfig>
+  );
+};
+
+export default App;
