@@ -743,7 +743,7 @@ export function HackerUIProfileInner() {
   const { initializeApp, getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, getFirestore, onSnapshot, collection, query, limit, setLogLevel, isMock } = getFirebaseFunctions();
   
   const initialProjects = [
-    { id: 1, title: "IkeOluwa Grills and Chops (WebApp)", desc: "A full-stack resturant platform built for a delivery-only kitchen. Customers can browse small chops, grilled meals and book event packages - all orders are sent via email to the admin", tags: ["Next,js", "React", "TailwindCSS"], url: "https://food-vendor-1xdb.vercel.app/", preview: "/projects/ikeoluwa-grills" },
+    { id: 1, title: "IkeOluwa Grills and Chops (WebApp)", desc: "A full-stack resturant platform built for a delivery-only kitchen. Customers can browse small chops, grilled meals and book event packages - all orders are sent via email to the admin", tags: ["Next,js", "React", "TailwindCSS"], url: "https://ikeoluwa-grillz-az.vercel.app/", preview: "/projects/ikeoluwa-grills" },
     { id: 2, title: "HerPick (Mobile APP)", desc: "A Mobile application that helps user discover, save and manage their favorite items effortlessly. Built with React Native Expo and TypeScript, featuring smooth navigation and elegant UI design.", tags: ["React Native(Expo)", "TypeScript", "React Navighation", "Context API", "Android"], url: "https://github.com/A9Pro/HerPick", preview:"/projects/herpick" },
     { id: 3, title: "Sniper Bot (MT5)", desc: "High-frequency sniper logic integrated with MT5. Python backend.", tags: ["Trading", "Python", "MT5"], url: "#" },
   ];
