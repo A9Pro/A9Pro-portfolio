@@ -149,6 +149,7 @@ const WelcomeLoader = ({ onComplete, minMs = 4000, audioSrc = "/startup.mp3" }) 
       let device = "Desktop (PC)";
       if (/mobile/i.test(userAgent)) device = "Mobile (Phone)";
       else if (/tablet/i.test(userAgent)) device = "Tablet (Pad)";
+      else if (/window|window os x/i.test(useragent)) devive = "Desktop (Window OS)";
       else if (/macintosh|mac os x/i.test(userAgent)) device = "Desktop (Mac)";
 
       let location = "Earth";
@@ -227,7 +228,7 @@ const WelcomeLoader = ({ onComplete, minMs = 4000, audioSrc = "/startup.mp3" }) 
       exit={{ opacity: 0 }}
       transition={{ duration: 0.9 }}
       className="fixed inset-0 flex items-center justify-center z-[100] font-mono overflow-hidden"
-      style={{ backgroundColor: "#000000" }}
+      style={{ backgroundColor: "#011006ff" }}
       aria-live="polite"
       role="status"
     >
@@ -661,7 +662,7 @@ const globalStyles = `
   .blinking-cursor {
     display: inline-block;
     width: 6px;
-    height: 10px;
+    height: 30px;
     background-color: transparent;
     border-right: 2px solid var(--color-text-main);
     animation: blink 1s step-end infinite;
@@ -681,8 +682,8 @@ const globalStyles = `
       position: fixed; 
       top: 0; 
       left: -100%; 
-      width: 80%; 
-      height: 100vh; 
+      width: 100%; 
+      height: 300vh; 
       z-index: 50; 
       transition: left 0.3s ease-in-out; 
       overflow-y: auto; 
@@ -693,7 +694,7 @@ const globalStyles = `
       top: 0; 
       left: 0; 
       width: 100%; 
-      height: 100vh; 
+      height: 300vh; 
       background: rgba(0,0,0,0.5); 
       z-index: 40; 
       opacity: 0; 
@@ -707,7 +708,7 @@ const globalStyles = `
     .header { flex-direction: column !important; align-items: flex-start !important; gap: 0.75rem !important; }
     .content-grid { flex-direction: column !important; height: auto !important; }
     .content-grid > div { width: 100% !important; }
-    iframe { height: 200px !important; }
+    iframe { height: 400px !important; }
   }
 
   @media (min-width: 769px) {
@@ -744,8 +745,11 @@ export function HackerUIProfileInner() {
   
   const initialProjects = [
     { id: 1, title: "IkeOluwa Grills and Chops (WebApp)", desc: "A full-stack resturant platform built for a delivery-only kitchen. Customers can browse small chops, grilled meals and book event packages - all orders are sent via email to the admin", tags: ["Next,js", "React", "TailwindCSS"], url: "https://ikeoluwa-grillz-az.vercel.app/", preview: "/projects/ikeoluwa-grills" },
-    { id: 2, title: "HerPick (Mobile APP)", desc: "A Mobile application that helps user discover, save and manage their favorite items effortlessly. Built with React Native Expo and TypeScript, featuring smooth navigation and elegant UI design.", tags: ["React Native(Expo)", "TypeScript", "React Navighation", "Context API", "Android"], url: "https://github.com/A9Pro/HerPick", preview:"/projects/herpick" },
-    { id: 3, title: "Sniper Bot (MT5)", desc: "High-frequency sniper logic integrated with MT5. Python backend.", tags: ["Trading", "Python", "MT5"], url: "#" },
+    { id: 2, title: "Aso - Oke  (WebApp)", desc: "", tags: ["Next,js", "React", "TailwindCSS"], url: "https://aso-oke.vercel.app/", preview: "/projects/aso-oke" },
+    { id: 3, title: "Kush High (WebApp)", desc: "A Nigeria webapp for smoke accessories", tags: ["Next,js", "React", "TailwindCSS"], url: "https://kush-high.vercel.app/", preview: "/projects/kush-high" },
+    { id: 4, title: "Essentials by Derin (WebApp)", desc: "A full-stack platform built for fashion accesories", tags: ["Next,js", "React", "TailwindCSS"], url: "https://esderin.vercel.app/", preview: "/projects/esderin" },
+    { id: 5, title: "HerPick (Mobile APP)", desc: "A Mobile application that helps user discover, save and manage their favorite items effortlessly. Built with React Native Expo and TypeScript, featuring smooth navigation and elegant UI design.", tags: ["React Native(Expo)", "TypeScript", "React Navighation", "Context API", "Android"], url: "https://github.com/A9Pro/HerPick", preview:"/projects/herpick" },
+    { id: 6, title: "Sniper Bot (MT5)", desc: "High-frequency sniper logic integrated with MT5. Python backend.", tags: ["Trading", "Python", "MT5"], url: "#" },
   ];
   const [projects, setProjects] = useState(initialProjects);
 
@@ -917,7 +921,8 @@ export function HackerUIProfileInner() {
     if (c === "contact") {
       appendTerminal("Email: adejaretalabi101@gmail.com");
       appendTerminal("Telegram: 969657262");
-      appendTerminal("X: cryptothugg101");
+      appendTerminal("X: a9pro.dev");
+      appendTerminal("Instagram: a9pro.dev");
       appendTerminal("Discord: a9_pro101");
       appendTerminal("SnapChat: hicethugg");
       appendTerminal("Github: github.com/A9Pro");
@@ -1177,7 +1182,7 @@ export function HackerUIProfileInner() {
                         <p className="text-[9px] mb-2" style={{ color: "var(--color-text-secondary)" }}>Quick HTML/CSS preview</p>
 
                         <div className="flex gap-1.5 mb-2">
-                          <button onClick={() => { setActivePane("editor"); if (window.innerWidth < 769) setSidebarOpen(false); }} className="px-2 py-1 rounded text-[10px]" style={{ backgroundColor: "#02222a", border: "1px solid #06404b" }}>
+                          <button onClick={() => { setActivePane("editor"); if (window.innerWidth < 1500) setSidebarOpen(false); }} className="px-2 py-1 rounded text-[10px]" style={{ backgroundColor: "#02222a", border: "1px solid #06404b" }}>
                             Open Editor
                           </button>
                           <button onClick={runPreview} className="px-2 py-1 rounded text-[10px]" style={{ border: "1px solid var(--color-accent-green)", backgroundColor: "#023332", color: "var(--color-text-main)" }}>
@@ -1354,6 +1359,19 @@ export function HackerUIProfileInner() {
                       <div className="space-y-1">
                         <a className="block text-[10px] p-1 rounded text-center" href="#" style={{ backgroundColor: "#02242d", border: "1px solid #05424a", color: "var(--color-text-main)" }}>Resume</a>
                         <a className="block text-[10px] p-1 rounded text-center" href="#" style={{ backgroundColor: "#02242d", border: "1px solid #05424a", color: "var(--color-text-main)" }}>Portfolio ZIP</a>
+                      </div>
+                    </div>
+
+                    <div className="rounded-lg p-2.5" style={{ backgroundColor: "#011b22", border: "1px solid #06313a" }}>
+                      <h4 className="text-[10px] font-semibold mb-1.5" style={{ color: "var(--color-text-main)" }}>Contacts</h4>
+                      <div className="space-y-1">
+                        <a className="block text-[10px] p-1 rounded text-left" href="#" style={{ backgroundColor: "#02242d", border: "1px solid #05424a", color: "var(--color-text-main)" }}>Email: adejaretalabi101@gmail.com</a>
+                        <a className="block text-[10px] p-1 rounded text-left" href="#" style={{ backgroundColor: "#02242d", border: "1px solid #05424a", color: "var(--color-text-main)" }}>Telegram: 969657262</a>
+                        <a className="block text-[10px] p-1 rounded text-left" href="#" style={{ backgroundColor: "#02242d", border: "1px solid #05424a", color: "var(--color-text-main)" }}>X: a9pro.dev</a>
+                        <a className="block text-[10px] p-1 rounded text-left" href="#" style={{ backgroundColor: "#02242d", border: "1px solid #05424a", color: "var(--color-text-main)" }}>Instagram: a9pro.dev</a>
+                        <a className="block text-[10px] p-1 rounded text-left" href="#" style={{ backgroundColor: "#02242d", border: "1px solid #05424a", color: "var(--color-text-main)" }}>Discord: a9_pro101</a>
+                        <a className="block text-[10px] p-1 rounded text-left" href="#" style={{ backgroundcolor: "#02242d", border: "1px solid #05424a", color: "var(--color-text-main)" }}>SnapChat: hicethugg</a>
+                        <a className="block text-[10px] p-1 roinded text-left" href="#" style={{ backgroundcolor: "#02242d", border: "1px solid #05424a", color: "var(--color-text-main)" }}>Github: github.com/A9Pro</a>
                       </div>
                     </div>
                   </div>
