@@ -707,6 +707,7 @@ const globalStyles = `
     main { width: 100%; padding: 1rem !important; }
     .header { flex-direction: column !important; align-items: flex-start !important; gap: 0.75rem !important; }
     .content-grid { flex-direction: column !important; height: auto !important; }
+    .content-grid { min-height: 0 !important; }
     .content-grid > div { width: 100% !important; }
     iframe { height: 400px !important; }
   }
@@ -983,7 +984,7 @@ export function HackerUIProfileInner() {
       <MotionConfig transition={{ duration: 0.18 }}>
         <style>{globalStyles}</style>
         <div className="min-h-screen w-full" style={{ backgroundColor: "var(--color-bg-primary)", color: "var(--color-text-main)" }}>
-          <div className="flex h-screen flex-col md:flex-row">
+          <div className="flex min-h-screen flex-col md:flex-row">
             <aside
               className={`sidebar ${sidebarOpen ? "open" : ""}`}
               style={{
@@ -1077,7 +1078,7 @@ export function HackerUIProfileInner() {
               </div>
             </aside>
 
-            <main className="flex-1 flex flex-col overflow-hidden p-4 overflow-y-auto">
+            <main className="flex-1 flex flex-col p-4 overflow-y-auto">
               <button
                 className="hamburger md:hidden mb-3 p-2 rounded"
                 onClick={() => setSidebarOpen((s) => !s)}
@@ -1147,7 +1148,7 @@ export function HackerUIProfileInner() {
                   </div>
                 </div>
 
-                <div className="flex gap-2 h-[calc(100%-60px)] content-grid">
+                <div className="flex gap-2 flex-1 min-h-0 content-grid">
                   <div className="flex-1 flex flex-col gap-2">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="rounded-lg p-2.5" style={{ backgroundColor: "#031926", border: "1px solid var(--color-border-sub)" }}>
