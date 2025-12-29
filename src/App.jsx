@@ -1,5 +1,6 @@
 import emailjs from "@emailjs/browser";
 import React, { useEffect, useRef, useState } from "react";
+import ProjectsPage from "./components/ProjectsPage";
 import { MotionConfig, motion, AnimatePresence } from "framer-motion";
 import { Terminal, Folder, Code, FileText, Mail, Github, Linkedin, Zap } from "lucide-react";
 
@@ -744,14 +745,63 @@ export function HackerUIProfileInner() {
   
   const { initializeApp, getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, getFirestore, onSnapshot, collection, query, limit, setLogLevel, isMock } = getFirebaseFunctions();
   
-  const initialProjects = [
-    { id: 1, title: "IkeOluwa Grills and Chops (WebApp)", desc: "A full-stack resturant platform built for a delivery-only kitchen. Customers can browse small chops, grilled meals and book event packages - all orders are sent via email to the admin", tags: ["Next,js", "React", "TailwindCSS"], url: "https://ikeoluwa-grillz-az.vercel.app/", preview: "/projects/ikeoluwa-grills" },
-    { id: 2, title: "Aso - Oke  (WebApp)", desc: "", tags: ["Next,js", "React", "TailwindCSS"], url: "https://aso-oke.vercel.app/", preview: "/projects/aso-oke" },
-    { id: 3, title: "Kush High (WebApp)", desc: "A Nigeria webapp for smoke accessories", tags: ["Next,js", "React", "TailwindCSS"], url: "https://kush-high.vercel.app/", preview: "/projects/kush-high" },
-    { id: 4, title: "Essentials by Derin (WebApp)", desc: "A full-stack platform built for fashion accesories", tags: ["Next,js", "React", "TailwindCSS"], url: "https://esderin.vercel.app/", preview: "/projects/esderin" },
-    { id: 5, title: "HerPick (Mobile APP)", desc: "A Mobile application that helps user discover, save and manage their favorite items effortlessly. Built with React Native Expo and TypeScript, featuring smooth navigation and elegant UI design.", tags: ["React Native(Expo)", "TypeScript", "React Navighation", "Context API", "Android"], url: "https://github.com/A9Pro/HerPick", preview:"/projects/herpick" },
-    { id: 6, title: "Sniper Bot (MT5)", desc: "High-frequency sniper logic integrated with MT5. Python backend.", tags: ["Trading", "Python", "MT5"], url: "#" },
-  ];
+const initialProjects = [
+  {
+    id: 1,
+    title: "IkeOluwa Grills and Chops (WebApp)",
+    desc: "A full-stack restaurant platform built for a delivery-only kitchen. Customers can browse menus, order small chops and grilled meals, and book event packages. Orders are routed directly to the admin via email for fast processing.",
+    tags: ["Next.js", "React", "TailwindCSS", "Email Integration", "FoodTech"],
+    url: "https://ikeoluwa-grillz-az.vercel.app/",
+    preview: "/projects/ikeoluwa-grills",
+  },
+  {
+    id: 2,
+    title: "Aso-Oke (WebApp)",
+    desc: "A modern fashion showcase platform focused on traditional Aso-Oke fabrics. Built with a clean UI to highlight cultural aesthetics, product presentation, and brand storytelling.",
+    tags: ["Next.js", "React", "TailwindCSS", "Fashion", "Branding"],
+    url: "https://aso-oke.vercel.app/",
+    preview: "/projects/aso-oke",
+  },
+  {
+    id: 3,
+    title: "Kush High (WebApp)",
+    desc: "An e-commerce-style web application for smoke accessories in Nigeria. Designed with bold visuals, smooth navigation, and a product-focused layout to enhance user engagement.",
+    tags: ["Next.js", "React", "TailwindCSS", "E-commerce", "UI/UX"],
+    url: "https://kush-high.vercel.app/",
+    preview: "/projects/kush-high",
+  },
+  {
+    id: 4,
+    title: "Essentials by Derin (WebApp)",
+    desc: "A full-stack fashion accessories platform built for showcasing premium lifestyle products. Focused on clean design, product clarity, and smooth browsing experience.",
+    tags: ["Next.js", "React", "TailwindCSS", "FashionTech", "Web Design"],
+    url: "https://esderin.vercel.app/",
+    preview: "/projects/esderin",
+  },
+  {
+    id: 5,
+    title: "HerPick (Mobile App)",
+    desc: "A mobile application that helps users discover, save, and manage favorite items effortlessly. Built with React Native (Expo) and TypeScript, featuring smooth navigation and elegant mobile-first UI.",
+    tags: [
+      "React Native",
+      "Expo",
+      "TypeScript",
+      "Mobile App",
+      "Android",
+    ],
+    url: "https://github.com/A9Pro/HerPick",
+    preview: "/projects/herpick",
+  },
+  {
+    id: 6,
+    title: "Sniper Bot (MT5)",
+    desc: "A high-frequency trading sniper bot built with Python and integrated into MetaTrader 5. Designed for precision entries, aggressive risk management, and automated execution on XAU/USD and BTC.",
+    tags: ["Python", "MT5", "Trading Bot", "Automation", "FinTech"],
+    url: "#",
+    preview: "/projects/sniper-bot",
+  },
+];
+
   const [projects, setProjects] = useState(initialProjects);
 
   const touchStartX = useRef(0);
