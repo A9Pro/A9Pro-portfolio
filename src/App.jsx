@@ -796,7 +796,7 @@ const initialProjects = [
     id: 6,
     title: "Sniper Bot (MT5)",
     desc: "A high-frequency trading sniper bot built with Python and integrated into MetaTrader 5. Designed for precision entries, aggressive risk management, and automated execution on XAU/USD and BTC.",
-    tags: ["Python", "MT5", "Trading Bot", "Automation", "FinTech"],
+    tags: ["Python", "MT5", "Trading Bot", "Automation"],
     url: "#",
     preview: "/projects/sniper-bot",
   },
