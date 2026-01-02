@@ -1,19 +1,16 @@
 import ProjectCard from "./ProjectCard";
 
-export default function ProjectsPage({ projects }) {
+export default function ProjectsPage({ projects, onOpen }) {
   return (
     <section className="projects-page">
-      <header className="projects-header">
-        <h2>&lt;&gt; Projects</h2>
-        <p>Selected works — web, mobile & automation</p>
-      </header>
+      <h1 className="projects-title">&lt;&gt; Projects</h1>
 
       <div className="projects-grid">
-        {projects.map((project, index) => (
+        {projects.map((project) => (
           <ProjectCard
             key={project.id}
             project={project}
-            index={index}
+            onOpen={onOpen}
           />
         ))}
       </div>

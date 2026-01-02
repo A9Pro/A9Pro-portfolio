@@ -726,6 +726,8 @@ const globalStyles = `
 
 export function HackerUIProfileInner() {
   const [activePane, setActivePane] = useState("terminal");
+  const [activeProject, setActiveProject] = useState(null);
+  const [selectedProject, setSelectedProject] = useState(null);
   const [terminalLines, setTerminalLines] = useState([
     "Welcome to A9Pro's portfolio — interface",
     "Type 'help' for commands.",
@@ -751,32 +753,32 @@ const initialProjects = [
     title: "IkeOluwa Grills and Chops (WebApp)",
     desc: "A full-stack restaurant platform built for a delivery-only kitchen. Customers can browse menus, order small chops and grilled meals, and book event packages. Orders are routed directly to the admin via email for fast processing.",
     tags: ["Next.js", "React", "TailwindCSS", "Email Integration", "FoodTech"],
+    preview: "/projects/ikeoluwa/preview.png",
     url: "https://ikeoluwa-grillz-az.vercel.app/",
-    preview: "/projects/ikeoluwa-grills",
   },
   {
     id: 2,
     title: "Aso-Oke (WebApp)",
     desc: "A modern fashion showcase platform focused on traditional Aso-Oke fabrics. Built with a clean UI to highlight cultural aesthetics, product presentation, and brand storytelling.",
     tags: ["Next.js", "React", "TailwindCSS", "Fashion", "Branding"],
+    preview: "/projects/aso-oke/preview.png",
     url: "https://aso-oke.vercel.app/",
-    preview: "/projects/aso-oke",
   },
   {
     id: 3,
     title: "Kush High (WebApp)",
     desc: "An e-commerce-style web application for smoke accessories in Nigeria. Designed with bold visuals, smooth navigation, and a product-focused layout to enhance user engagement.",
     tags: ["Next.js", "React", "TailwindCSS", "E-commerce", "UI/UX"],
+    preview: "/projects/kush-high/preview.png",
     url: "https://kush-high.vercel.app/",
-    preview: "/projects/kush-high",
   },
   {
     id: 4,
     title: "Essentials by Derin (WebApp)",
     desc: "A full-stack fashion accessories platform built for showcasing premium lifestyle products. Focused on clean design, product clarity, and smooth browsing experience.",
     tags: ["Next.js", "React", "TailwindCSS", "FashionTech", "Web Design"],
+    preview: "/projects/esderin/preview.png",
     url: "https://esderin.vercel.app/",
-    preview: "/projects/esderin",
   },
   {
     id: 5,
@@ -789,14 +791,14 @@ const initialProjects = [
       "Mobile App",
       "Android",
     ],
+    preview: "/projects/herpick/preview.png",
     url: "https://github.com/A9Pro/HerPick",
-    preview: "/projects/herpick",
   },
   {
     id: 6,
     title: "Sniper Bot (MT5)",
     desc: "A high-frequency trading sniper bot built with Python and integrated into MetaTrader 5. Designed for precision entries, aggressive risk management, and automated execution on XAU/USD and BTC.",
-    tags: ["Python", "MT5", "Trading Bot", "Automation", "FinTech"],
+    tags: ["Python", "MT5", "Trading Bot", "Automation"],
     url: "#",
     preview: "/projects/sniper-bot",
   },
@@ -1300,9 +1302,17 @@ const initialProjects = [
                                     <div className="font-medium text-xs">{p.title}</div>
                                     <div className="text-[10px]" style={{ color: "var(--color-text-secondary)" }}>{p.desc}</div>
                                   </div>
-                                  <a className="text-[9px] px-1.5 py-0.5 rounded ml-2" href={p.url} style={{ backgroundColor: "#02242d", border: "1px solid #05424a", color: "var(--color-text-main)" }}>
-                                    Open
-                                  </a>
+                                  <button
+                                    onClick={() => setSelectedProject(p)}
+                                    className="text-[9px] px-1.5 py-0.5 rounded ml-2 hover-neon"
+                                    style={{
+                                     backgroundColor: "#02242d",
+                                     border: "1px solid #05424a",
+                                     color: "var(--color-text-main)"
+                                    }}
+                                  >
+                                    View
+                                  </button>
                                 </div>
                               </div>
                             ))}
@@ -1315,7 +1325,7 @@ const initialProjects = [
                           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
                             <textarea value={editorCode} onChange={(e) => setEditorCode(e.target.value)} className="w-full h-full p-2 rounded text-[10px] font-mono border resize-none" style={{ backgroundColor: "#02161a", borderColor: "#06424a", color: "var(--color-text-main)" }} />
                             <div className="h-full rounded border overflow-hidden" style={{ borderColor: "#06424a" }}>
-                              <iframe title="preview" ref={previewRef} sandbox="allow-scripts allow-forms" className="w-full h-full bg-white" />
+                              <iframe title="preview" ref={previewRef} sandbox="allow-scripts allow-forms allow-same-origin" className="w-full h-full bg-white" />
                             </div>
                           </div>
 
@@ -1422,7 +1432,7 @@ const initialProjects = [
                         <a className="block text-[10px] p-1 rounded text-left" href="#" style={{ backgroundColor: "#02242d", border: "1px solid #05424a", color: "var(--color-text-main)" }}>Instagram: a9pro.dev</a>
                         <a className="block text-[10px] p-1 rounded text-left" href="#" style={{ backgroundColor: "#02242d", border: "1px solid #05424a", color: "var(--color-text-main)" }}>Discord: a9_pro101</a>
                         <a className="block text-[10px] p-1 rounded text-left" href="#" style={{ backgroundcolor: "#02242d", border: "1px solid #05424a", color: "var(--color-text-main)" }}>SnapChat: hicethugg</a>
-                        <a className="block text-[10px] p-1 roinded text-left" href="#" style={{ backgroundcolor: "#02242d", border: "1px solid #05424a", color: "var(--color-text-main)" }}>Github: github.com/A9Pro</a>
+                        <a className="block text-[10px] p-1 rounded text-left" href="#" style={{ backgroundcolor: "#02242d", border: "1px solid #05424a", color: "var(--color-text-main)" }}>Github: github.com/A9Pro</a>
                       </div>
                     </div>
                   </div>
@@ -1437,11 +1447,80 @@ const initialProjects = [
           </div>
         </div>
       </MotionConfig>
-      
-      <audio ref={audioRef} loop preload="auto">
-        <source src="/ambient-cyber.mp3" type="audio/mpeg" />
-        Your browser does not support audio.
-      </audio>
+{selectedProject && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+    <div
+      className="w-full max-w-lg rounded-lg p-4 relative"
+      style={{
+        backgroundColor: "#02151a",
+        border: "1px solid var(--color-border-sub)",
+        color: "var(--color-text-main)",
+      }}
+    >
+      <button
+        onClick={() => setSelectedProject(null)}
+        className="absolute top-2 right-2 text-xs px-2 py-1 rounded"
+        style={{
+          backgroundColor: "#02242d",
+          border: "1px solid #05424a",
+          color: "var(--color-text-main)",
+        }}
+      >
+        ✕
+      </button>
+
+      <h3
+        className="text-sm font-semibold mb-2"
+        style={{ color: "var(--color-accent-green)" }}
+      >
+        {selectedProject.title}
+      </h3>
+
+      {selectedProject.preview && (
+        <div
+          className="mb-3 rounded overflow-hidden border"
+          style={{ borderColor: "#05424a" }}
+        >
+          <img
+            src={selectedProject.preview}
+            alt={selectedProject.title}
+            className="w-full h-40 object-cover"
+          />
+        </div>
+      )}
+
+      <p
+        className="text-[10px] mb-3"
+        style={{ color: "var(--color-text-secondary)" }}
+      >
+        {selectedProject.desc}
+      </p>
+
+      {selectedProject.tags && (
+        <div className="flex flex-wrap gap-1">
+          {selectedProject.tags.map((tag) => (
+            <span
+              key={tag}
+              className="text-[9px] px-1.5 py-0.5 rounded"
+              style={{
+                backgroundColor: "#001a1f",
+                border: "1px solid #05424a",
+              }}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
+<audio ref={audioRef} loop preload="auto">
+  <source src="/ambient-cyber.mp3" type="audio/mpeg" />
+  Your browser does not support audio.
+</audio>
+
     </>
   );
 }
