@@ -2,6 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  color-scheme:dark;
+  --bg: #020b0a;
+  --fg: #d9fff9;
+  --accent: #00ffff;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f7fffd;
+  --fg: #020b0a;
+  --accent: #007a7a;
+}
+
+html,
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+  min-height: 100%;
+  transition: 
+    background-color 0.35s ease,
+    color 0.35s ease;
+}
+
 body::before {
   content: "";
   position: fixed;
@@ -21,18 +45,17 @@ body::before {
   z-index: 0;
 }
 
-html,
-body,
-#root {
-  transition:
-    background-color 0.25s ease,
-    color 0.25s ease;
-}
-
 .hacker-neon * {
   text-shadow:
-    0 0 2px rgba(0, 255, 255, 0.6),
-    0 0 6px rgba(0, 255, 255, 0.4);
+    0 0 4px var(--accent),
+    0 0 10px var(--accent);
+}
+
+* {
+  transition:
+    backgound-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
 }
 
 @keyframes slideInRight {

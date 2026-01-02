@@ -1450,79 +1450,86 @@ const initialProjects = [
 
 {selectedProject && (
   <>
+
     <div
-      className="fixed inset-0 z-40 bg-black/70"
+      className="fixed inset-0 z-40 bg-black/40"
       onClick={() => setSelectedProject(null)}
     />
 
-    <div
-      className="fixed top-0 right-0 z-50 h-full w-full sm:w-[420px] p-4 overflow-y-auto"
+    <aside
+      className="fixed top-0 right-0 z-50 h-full w-full sm:w-[420px] flex flex-col"
       style={{
         backgroundColor: "#02151a",
-        borderLeft: "1px solid var(--color-border-sub)",
+        borderLeft: "1px solid #05424a",
         color: "var(--color-text-main)",
         animation: "slideInRight 0.25s ease-out",
       }}
     >
-      <button
-        onClick={() => setSelectedProject(null)}
-        className="absolute top-3 right-3 text-xs px-2 py-1 rounded"
-        style={{
-          backgroundColor: "#02242d",
-          border: "1px solid #05424a",
-          color: "var(--color-text-main)",
-        }}
+      <div
+        className="flex items-center justify-between px-4 py-3"
+        style={{ borderBottom: "1px solid #05424a" }}
       >
-        ✕
-      </button>
-
-      <h3
-        className="text-sm font-semibold mb-3"
-        style={{ color: "var(--color-accent-green)" }}
-      >
-        {selectedProject.title}
-      </h3>
-
-      {selectedProject.preview && (
-        <div
-          className="mb-4 rounded overflow-hidden border"
-          style={{ borderColor: "#05424a" }}
+        <h3
+          className="text-xs font-semibold tracking-wide uppercase"
+          style={{ color: "var(--color-accent-green)" }}
         >
-          <img
-            src={selectedProject.preview}
-            alt={selectedProject.title}
-            className="w-full h-44 object-cover"
-          />
-        </div>
-      )}
+          {selectedProject.title}
+        </h3>
 
-      <p
-        className="text-[10px] mb-4"
-        style={{ color: "var(--color-text-secondary)" }}
-      >
-        {selectedProject.desc}
-      </p>
+        <button
+          onClick={() => setSelectedProject(null)}
+          className="text-[10px] px-2 py-1 rounded"
+          style={{
+            backgroundColor: "#02242d",
+            border: "1px solid #05424a",
+            color: "var(--color-text-main)",
+          }}
+        >
+          ✕
+        </button>
+      </div>
 
-      {selectedProject.tags && (
-        <div className="flex flex-wrap gap-1">
-          {selectedProject.tags.map((tag) => (
-            <span
-              key={tag}
-              className="text-[9px] px-1.5 py-0.5 rounded"
-              style={{
-                backgroundColor: "#001a1f",
-                border: "1px solid #05424a",
-              }}
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      )}
-    </div>
+      <div className="flex-1 p-4 overflow-y-auto">
+        {selectedProject.preview && (
+          <div
+            className="mb-4 rounded overflow-hidden border"
+            style={{ borderColor: "#05424a" }}
+          >
+            <img
+              src={selectedProject.preview}
+              alt={selectedProject.title}
+              className="w-full h-44 object-cover"
+            />
+          </div>
+        )}
+
+        <p
+          className="text-[10px] leading-relaxed mb-4"
+          style={{ color: "var(--color-text-secondary)" }}
+        >
+          {selectedProject.desc}
+        </p>
+
+        {selectedProject.tags && (
+          <div className="flex flex-wrap gap-1">
+            {selectedProject.tags.map((tag) => (
+              <span
+                key={tag}
+                className="text-[9px] px-1.5 py-0.5 rounded"
+                style={{
+                  backgroundColor: "#001a1f",
+                  border: "1px solid #05424a",
+                }}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </aside>
   </>
 )}
-
 
 <audio ref={audioRef} loop preload="auto">
   <source src="/ambient-cyber.mp3" type="audio/mpeg" />
