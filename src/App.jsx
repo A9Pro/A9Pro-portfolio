@@ -725,7 +725,7 @@ const globalStyles = `
 `;
 
 export function HackerUIProfileInner() {
-  const [activePane, setActivePane] = useState("terminal");
+  const [activePane, setActivePane] = useState("null");
   const [activeProject, setActiveProject] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
   const [terminalLines, setTerminalLines] = useState([
@@ -1447,19 +1447,26 @@ const initialProjects = [
           </div>
         </div>
       </MotionConfig>
+
 {selectedProject && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+  <>
     <div
-      className="w-full max-w-lg rounded-lg p-4 relative"
+      className="fixed inset-0 z-40 bg-black/70"
+      onClick={() => setSelectedProject(null)}
+    />
+
+    <div
+      className="fixed top-0 right-0 z-50 h-full w-full sm:w-[420px] p-4 overflow-y-auto"
       style={{
         backgroundColor: "#02151a",
-        border: "1px solid var(--color-border-sub)",
+        borderLeft: "1px solid var(--color-border-sub)",
         color: "var(--color-text-main)",
+        animation: "slideInRight 0.25s ease-out",
       }}
     >
       <button
         onClick={() => setSelectedProject(null)}
-        className="absolute top-2 right-2 text-xs px-2 py-1 rounded"
+        className="absolute top-3 right-3 text-xs px-2 py-1 rounded"
         style={{
           backgroundColor: "#02242d",
           border: "1px solid #05424a",
@@ -1470,7 +1477,7 @@ const initialProjects = [
       </button>
 
       <h3
-        className="text-sm font-semibold mb-2"
+        className="text-sm font-semibold mb-3"
         style={{ color: "var(--color-accent-green)" }}
       >
         {selectedProject.title}
@@ -1478,19 +1485,19 @@ const initialProjects = [
 
       {selectedProject.preview && (
         <div
-          className="mb-3 rounded overflow-hidden border"
+          className="mb-4 rounded overflow-hidden border"
           style={{ borderColor: "#05424a" }}
         >
           <img
             src={selectedProject.preview}
             alt={selectedProject.title}
-            className="w-full h-40 object-cover"
+            className="w-full h-44 object-cover"
           />
         </div>
       )}
 
       <p
-        className="text-[10px] mb-3"
+        className="text-[10px] mb-4"
         style={{ color: "var(--color-text-secondary)" }}
       >
         {selectedProject.desc}
@@ -1513,8 +1520,9 @@ const initialProjects = [
         </div>
       )}
     </div>
-  </div>
+  </>
 )}
+
 
 <audio ref={audioRef} loop preload="auto">
   <source src="/ambient-cyber.mp3" type="audio/mpeg" />

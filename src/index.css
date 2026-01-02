@@ -6,12 +6,63 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background: repeating-linear-gradient(90deg, rgba(0,255,0,0.03) 0 1px, transparent 1px 5px),
-              repeating-linear-gradient(0deg, rgba(0,255,0,0.03) 0 1px, transparent 1px 5px);
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(0, 255, 0, 0.03) 0 1px,
+      transparent 1px 5px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 255, 0, 0.03) 0 1px,
+      transparent 1px 5px
+    );
   pointer-events: none;
   z-index: 0;
 }
 
+html,
+body,
+#root {
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
 .hacker-neon * {
-  text-shadow: 0 0 4px #0ff, 0 0 10px #0ff;
+  text-shadow:
+    0 0 2px rgba(0, 255, 255, 0.6),
+    0 0 6px rgba(0, 255, 255, 0.4);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.slide-in-right {
+  animation: slideInRight 0.25s ease-out;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #021018;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #05424a;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0aa6a6;
 }
