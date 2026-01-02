@@ -1440,7 +1440,7 @@ const initialProjects = [
               </div>
 
               <footer className="px-3 py-2 text-[9px] flex items-center justify-between" style={{ borderTop: "1px solid #0b2b36", color: "var(--color-text-secondary)" }}>
-                <span>Made with <span style={{ color: "var(--color-accent-red)" }}>♥</span> — <span style={{ color: "var(--color-accent-green)" }}>Hacker UI</span> • <span style={{ color: "var(--color-accent-blue)" }}>2025</span></span>
+                <span>Made with <span style={{ color: "var(--color-accent-red)" }}>♥</span> — <span style={{ color: "var(--color-accent-green)" }}>Hacker UI</span> • <span style={{ color: "var(--color-accent-blue)" }}>2026</span></span>
                 <span style={{ color: "var(--color-accent-green)" }}>Version 1.2</span>
               </footer>
             </main>
