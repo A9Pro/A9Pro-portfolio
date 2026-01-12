@@ -736,6 +736,7 @@ export function HackerUIProfileInner() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [hobbiesVisible, setHobbiesVisible] = useState(false);
   const [currentHobbyIndex, setCurrentHobbyIndex] = useState(0);
+  const [activityLogs, setActivityLogs] = useState([]);
   
   const [isMuted, setIsMuted] = useState(true);
   const audioRef = useRef(null);
@@ -934,6 +935,17 @@ const initialProjects = [
       }
     }
   }, [isMuted]);
+
+  useEffect(() => {
+  if (!selectedProject) return;
+
+  setActivityLogs([
+    "Initializing system…",
+    "Linking project assets…",
+    "Rendering preview…",
+    "Project loaded successfully",
+  ]);
+}, [selectedProject]);
 
   function appendTerminal(text) {
     setTerminalLines((t) => [...t, text]);
@@ -1157,7 +1169,7 @@ const initialProjects = [
                       sequence={[
                         "Full-Stack Developer...",
                         1500,
-                        "Crypto Trader...",
+                        "Trader...",
                         1500,
                         "Tech Innovator...",
                         1500,
@@ -1423,6 +1435,12 @@ const initialProjects = [
                       </div>
                     </div>
 
+                    <div class="activity-log">
+                      <div class="log-line">[BOOT] Initializing GO 2.0...</div>
+                      <div class="log-line">[SYS] Assets linked successfully</div>
+                      <div class="log-line">[LOAD] Project preview rendered</div>
+                    </div>
+
                     <div className="rounded-lg p-2.5" style={{ backgroundColor: "#011b22", border: "1px solid #06313a" }}>
                       <h4 className="text-[10px] font-semibold mb-1.5" style={{ color: "var(--color-text-main)" }}>Contacts</h4>
                       <div className="space-y-1">
@@ -1450,7 +1468,6 @@ const initialProjects = [
 
 {selectedProject && (
   <>
-
     <div
       className="fixed inset-0 z-40 bg-black/40"
       onClick={() => setSelectedProject(null)}
@@ -1530,6 +1547,7 @@ const initialProjects = [
     </aside>
   </>
 )}
+
 
 <audio ref={audioRef} loop preload="auto">
   <source src="/ambient-cyber.mp3" type="audio/mpeg" />
